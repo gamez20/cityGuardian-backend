@@ -47,5 +47,7 @@ dependencies {
     implementation("org.mapstruct:mapstruct:1.5.5.Final")
     kapt("org.mapstruct:mapstruct-processor:1.5.5.Final")
     kapt("org.springframework.boot:spring-boot-configuration-processor")
+    implementation("org.simplejavamail:simple-java-mail:8.6.3")
+
 }
 
