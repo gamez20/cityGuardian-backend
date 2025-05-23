@@ -23,12 +23,6 @@ public class UserController  {
     @Autowired
     private UserService userService;
 
-    @PostMapping
-    public ResponseEntity<MessageDTO<String>> createNewUser(@Valid @RequestBody CreateUserDto account) throws Exception{
-        userService.createNewUser(account);
-        return ResponseEntity.status(201).body(new MessageDTO<>(false, "Su registro ha sido exitoso"));
-    }
-
     @PatchMapping
     public UserDto edit (@Valid @RequestBody EditUserDto account) throws Exception {
         return userService.updateUser(account);
