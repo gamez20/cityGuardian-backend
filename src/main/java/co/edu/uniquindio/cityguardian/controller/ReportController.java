@@ -2,12 +2,11 @@ package co.edu.uniquindio.cityguardian.controller;
 
 
 import co.edu.uniquindio.cityguardian.dto.ImagenDTO;
-import co.edu.uniquindio.cityguardian.dto.UserReportsDTO;
 import co.edu.uniquindio.cityguardian.mapping.dto.*;
 import co.edu.uniquindio.cityguardian.model.Report;
+import co.edu.uniquindio.cityguardian.model.dto.CreateReportRequest;
 import co.edu.uniquindio.cityguardian.services.ReportService;
 import co.edu.uniquindio.cityguardian.services.ImagenService;
-import co.edu.uniquindio.cityguardian.utils.TokenUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.naming.AuthenticationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,7 +36,7 @@ public class ReportController {
 
     @PostMapping("/create")
     public ResponseEntity<MessageDTO<String>> createNewReport(
-            @Valid @RequestPart("report") CreateReportDto reportDto,
+            @Valid @RequestPart("report") CreateReportRequest reportDto,
             @RequestPart(value = "imagenes", required = false) List<MultipartFile> imagenes) throws Exception {
         try {
             List<String> imageUrls = new ArrayList<>();

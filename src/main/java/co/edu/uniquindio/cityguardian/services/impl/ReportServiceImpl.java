@@ -2,7 +2,7 @@ package co.edu.uniquindio.cityguardian.services.impl;
 
 import co.edu.uniquindio.cityguardian.exceptions.RepeatedElementException;
 import co.edu.uniquindio.cityguardian.mapping.dto.CommentDto;
-import co.edu.uniquindio.cityguardian.mapping.dto.CreateReportDto;
+import co.edu.uniquindio.cityguardian.model.dto.CreateReportRequest;
 import co.edu.uniquindio.cityguardian.mapping.dto.EditReportDto;
 import co.edu.uniquindio.cityguardian.mapping.dto.FilterReportDto;
 import co.edu.uniquindio.cityguardian.mapping.dto.ReportDTO;
@@ -49,7 +49,7 @@ public class ReportServiceImpl implements ReportService {
     private UserRepository userRepository;
 
     @Override
-    public ReportDTO createNewReport(CreateReportDto reportDto, List<String> imageUrls) throws Exception {
+    public ReportDTO createNewReport(CreateReportRequest reportDto, List<String> imageUrls) throws Exception {
         Category category = categoryRepository.findById(reportDto.categoryId())
                 .orElseThrow(() -> new Exception("La categoría no existe"));
         String email = TokenUtils.getEmailFromToken();
