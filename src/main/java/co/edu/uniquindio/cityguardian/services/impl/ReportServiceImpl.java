@@ -70,14 +70,23 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public ReportDTO updateReport(EditReportDto updatedReport, String id) throws Exception {
-        Optional<Report> optionalReport = repository.findById(id);
-        if (optionalReport.isEmpty()) {
-            throw new RuntimeException("Reporte no encontrado");
-        }
+        Report existingReport = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reporte no encontrado"));
 
-        Report existingReport = optionalReport.get();
-        objectMapper.updateValue(existingReport, updatedReport);
-        return reportMapper.toReportDto(repository.save(existingReport));
+        // Validar que la categoría existe
+        categoryRepository.findById(updatedReport.categoryId())
+                .orElseThrow(() -> new Exception("La categoría no existe"));
+
+        // Actualizar campos básicos
+        existingReport.setTitle(updatedReport.title());
+        existingReport.setDescription(updatedReport.description());
+        existingReport.setCategoryId(updatedReport.categoryId());
+
+        // Actualizar las URLs de las imágenes con la nueva lista
+        existingReport.setImageUrls(updatedReport.imageUrls());
+
+        Report savedReport = repository.save(existingReport);
+        return reportMapper.toReportDto(savedReport);
     }
 
     @Override

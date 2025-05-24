@@ -2,12 +2,10 @@ package co.edu.uniquindio.cityguardian.controller;
 
 
 import co.edu.uniquindio.cityguardian.dto.ImagenDTO;
-import co.edu.uniquindio.cityguardian.dto.UserReportsDTO;
 import co.edu.uniquindio.cityguardian.mapping.dto.*;
 import co.edu.uniquindio.cityguardian.model.Report;
 import co.edu.uniquindio.cityguardian.services.ReportService;
 import co.edu.uniquindio.cityguardian.services.ImagenService;
-import co.edu.uniquindio.cityguardian.utils.TokenUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.naming.AuthenticationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -56,8 +53,47 @@ public class ReportController {
     }
 
     @PutMapping("/{id}")
-    public ReportDTO editReport(@Valid @RequestBody EditReportDto reportDto, @PathVariable String id) throws Exception {
-        return reportService.updateReport(reportDto, id);
+    public ResponseEntity<MessageDTO<EditReportDto>> editReport(
+            @PathVariable String id,
+            @Valid @RequestPart("report") EditReportDto reportDto,
+            @RequestPart(value = "imagenes", required = false) List<MultipartFile> nuevasImagenes) throws Exception {
+        try {
+            // Obtener el reporte actual para acceder a sus imágenes existentes
+            ReportDTO reporteActual = reportService.getReportById(id);
+
+            // Eliminar las imágenes antiguas que ya no están en el nuevo DTO
+            if (reporteActual.imageUrls() != null) {
+                for (String oldImageUrl : reporteActual.imageUrls()) {
+                    if (reportDto.imageUrls() == null || !reportDto.imageUrls().contains(oldImageUrl)) {
+                        imagenService.eliminarImagen(oldImageUrl);
+                    }
+                }
+            }
+
+            // Procesar nuevas imágenes si existen
+            List<String> imageUrls = reportDto.imageUrls() != null ? new ArrayList<>(reportDto.imageUrls()) : new ArrayList<>();
+
+            if (nuevasImagenes != null && !nuevasImagenes.isEmpty()) {
+                List<ImagenDTO> imageDTOs = imagenService.subirImagenes(nuevasImagenes);
+                imageUrls.addAll(imageDTOs.stream()
+                        .map(ImagenDTO::getUrl)
+                        .collect(Collectors.toList()));
+            }
+
+            // Crear nuevo DTO con las URLs actualizadas
+            EditReportDto reportDtoWithImages = new EditReportDto(
+                    reportDto.title(),
+                    reportDto.description(),
+                    reportDto.categoryId(),
+                    imageUrls
+            );
+
+            reportService.updateReport(reportDtoWithImages, id);
+            return ResponseEntity.ok(new MessageDTO<>(false, reportDtoWithImages));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageDTO<EditReportDto>(true, null));
+        }
     }
 
     @DeleteMapping("/{id}")

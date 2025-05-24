@@ -1,20 +1,21 @@
 package co.edu.uniquindio.cityguardian.mapping.dto;
 
-import org.springframework.data.annotation.Id;
+import co.edu.uniquindio.cityguardian.model.ReportStatus;
+import java.time.LocalDateTime;
+import java.util.List;
 
 public record ReportDTO(
-
-        @Id
-        String id,
-        String title,
-        String category,
-        String description,
-        String solved,
-        String important,
-        String locationIdFk,
-        String status,
-        String creationDate,
-        String clientIdFk,
-        String priority
-) {
-}
+    String id,
+    String title,
+    String description,
+    Boolean solved,
+    Boolean important,
+    String categoryId,
+    ReportStatus status,
+    LocalDateTime creationDate,
+    List<String> comments,
+    int priority,
+    String userId,
+    List<String> imageUrls,
+    String rejectReason
+) {}
