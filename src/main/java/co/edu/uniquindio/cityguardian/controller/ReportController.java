@@ -10,6 +10,7 @@ import co.edu.uniquindio.cityguardian.services.ImagenService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,7 +35,7 @@ public class ReportController {
         return reportService.filterReports(filterReportDto);
     }
 
-    @PostMapping("/create")
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MessageDTO<String>> createNewReport(
             @Valid @RequestPart("report") CreateReportRequest reportDto,
             @RequestPart(value = "imagenes", required = false) List<MultipartFile> imagenes) throws Exception {
