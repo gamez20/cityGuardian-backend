@@ -10,20 +10,26 @@ import co.edu.uniquindio.cityguardian.mapping.mappers.ReportMapper;
 import co.edu.uniquindio.cityguardian.model.Report;
 import co.edu.uniquindio.cityguardian.repository.ReportRepository;
 import co.edu.uniquindio.cityguardian.services.ReportService;
+import co.edu.uniquindio.cityguardian.services.ImagenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
 
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class ReportServiceImpl implements ReportService {
 
     @Autowired
     private ReportRepository repository;
+    
+    @Autowired
+    private ImagenService imagenService;
     @Autowired
     private ReportMapper reportMapper;
     @Autowired
@@ -35,8 +41,8 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public void createNewReport(CreateReportDto reportDto, List<String> imageUrls) throws Exception {
         Report report = reportMapper.toDocument(reportDto);
+        report.setImageUrls(imageUrls); // Establecer explícitamente las URLs de las imágenes
         repository.save(report);
-
     }
 
     @Override
@@ -53,10 +59,21 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public void deleteReport(String id) throws Exception {
-        Optional<Report> reportOptional = repository.findById(id);
-        if (reportOptional.isEmpty()){
-            throw  new RuntimeException("Reporte no encontrado");
+        Report report = repository.findById(id)
+                .orElseThrow(() -> new Exception("No existe un reporte con el id " + id));
+
+        // Eliminar las imágenes asociadas
+        if (report.getImageUrls() != null && !report.getImageUrls().isEmpty()) {
+            for (String imageUrl : report.getImageUrls()) {
+                try {
+                    imagenService.eliminarImagen(imageUrl);
+                } catch (Exception e) {
+                    // Log error but continue with deletion
+                    System.err.println("Error eliminando imagen: " + imageUrl + " - " + e.getMessage());
+                }
+            }
         }
+
         repository.deleteById(id);
     }
 
