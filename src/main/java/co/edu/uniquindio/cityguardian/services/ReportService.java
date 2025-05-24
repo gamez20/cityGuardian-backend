@@ -2,6 +2,7 @@ package co.edu.uniquindio.cityguardian.services;
 
 import co.edu.uniquindio.cityguardian.mapping.dto.CommentDto;
 import co.edu.uniquindio.cityguardian.model.dto.CreateReportRequest;
+import co.edu.uniquindio.cityguardian.model.dto.LocationDTO;
 import co.edu.uniquindio.cityguardian.mapping.dto.EditReportDto;
 import co.edu.uniquindio.cityguardian.mapping.dto.FilterReportDto;
 import co.edu.uniquindio.cityguardian.model.Report;
@@ -21,4 +22,5 @@ public interface ReportService {
     List<ReportDTO> filterReports(FilterReportDto filterReportDto) throws Exception;
     void addComment(CommentDto commentDto, String id) throws Exception;
     List<Report> getReportsByCategory(String categoryId);
+    List<ReportDTO> findReportsNearLocation(LocationDTO location, double radiusInKm) throws Exception;
 }

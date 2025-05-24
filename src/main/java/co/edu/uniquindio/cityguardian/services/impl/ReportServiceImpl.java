@@ -3,6 +3,7 @@ package co.edu.uniquindio.cityguardian.services.impl;
 import co.edu.uniquindio.cityguardian.exceptions.RepeatedElementException;
 import co.edu.uniquindio.cityguardian.mapping.dto.CommentDto;
 import co.edu.uniquindio.cityguardian.model.dto.CreateReportRequest;
+import co.edu.uniquindio.cityguardian.model.dto.LocationDTO;
 import co.edu.uniquindio.cityguardian.mapping.dto.EditReportDto;
 import co.edu.uniquindio.cityguardian.mapping.dto.FilterReportDto;
 import co.edu.uniquindio.cityguardian.mapping.dto.ReportDTO;
@@ -13,6 +14,7 @@ import co.edu.uniquindio.cityguardian.model.User;
 import co.edu.uniquindio.cityguardian.repository.ReportRepository;
 import co.edu.uniquindio.cityguardian.repository.UserRepository;
 import co.edu.uniquindio.cityguardian.services.ReportService;
+import co.edu.uniquindio.cityguardian.utils.LocationUtils;
 import co.edu.uniquindio.cityguardian.utils.TokenUtils;
 import co.edu.uniquindio.cityguardian.services.ImagenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 import co.edu.uniquindio.cityguardian.model.Category;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.naming.AuthenticationException;
 
@@ -198,4 +201,37 @@ public class ReportServiceImpl implements ReportService {
         return repository.findByCategoryId(categoryId);
     }
 
+
+    @Override
+    public List<ReportDTO> findReportsNearLocation(LocationDTO location, double radiusInKm) throws Exception {
+        try {
+            double targetLat = Double.parseDouble(location.latitude());
+            double targetLon = Double.parseDouble(location.longitude());
+
+            List<Report> allReports = repository.findAll();
+
+            return allReports.stream()
+                .filter(report -> report.getLocation() != null)
+                .filter(report -> {
+                    try {
+                        if (report.getLocation() == null) {
+                            return  false;
+                        }
+                        double reportLat = Double.parseDouble(report.getLocation().getLatitude());
+                        double reportLon = Double.parseDouble(report.getLocation().getLongitude());
+                        
+                        double distance = LocationUtils.calculateDistance(
+                            targetLat, targetLon, reportLat, reportLon);
+                        
+                        return distance <= radiusInKm;
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                })
+                .map(reportMapper::toReportDto)
+                .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new Exception("Error al buscar reportes cercanos: " + e.getMessage());
+        }
+    }
 }
