@@ -19,6 +19,7 @@ public interface ReportMapper {
     @Mapping(target = "solved", constant = "false")
     @Mapping(target = "important", constant = "false")
     @Mapping(target = "creationDate", expression = "java(java.time.ZonedDateTime.now(java.time.ZoneId.of(\"America/Bogota\")).toLocalDateTime())")
+    @Mapping(target = "imageUrls", source = "imageUrls") // Mapear explícitamente imageUrls
     Report toDocument(CreateReportDto reportDto);
 
     CreateReportDto toDTO(Report report);

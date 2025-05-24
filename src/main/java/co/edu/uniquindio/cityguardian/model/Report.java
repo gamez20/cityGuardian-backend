@@ -28,12 +28,13 @@ public class Report {
     private ReportStatus status;
     private LocalDateTime creationDate;
     private List<String> comments;
+    private List<String> imageUrls;
     private int priority;
     private String userId;
 
     //builder
     @Builder
-    public Report(String id, String title, Category category, String description, Boolean solved, Boolean important,String locationIdFk, ReportStatus status, LocalDateTime creationDate, List<String> comments, int priority, String userId) {
+    public Report(String id, String title, Category category, String description, Boolean solved, Boolean important,String locationIdFk, ReportStatus status, LocalDateTime creationDate, List<String> comments, int priority, List<String> imageUrls, String userId) {
         this.id = id;
         this.title = title;
         this.category = category;
@@ -46,6 +47,7 @@ public class Report {
         this.comments = comments;
         this.priority = priority;
         this.userId = userId;
+        this.imageUrls = imageUrls; // Initialize to null or an empty list if needed
     }
 
 
@@ -152,5 +154,13 @@ public class Report {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public List<String> getImageUrls() {
+        return imageUrls;
+    }
+
+    public void setImageUrls(List<String> imageUrls) {
+        this.imageUrls = imageUrls;
     }
 }
