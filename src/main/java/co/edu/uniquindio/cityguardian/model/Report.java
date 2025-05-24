@@ -1,10 +1,11 @@
 package co.edu.uniquindio.cityguardian.model;
 
+// ...existing imports...
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -16,32 +17,30 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class Report {
-
-    //var
     @Id
     private String id;
     private String title;
-    private Category category;
     private String description;
     private Boolean solved;
     private Boolean important;
-    private String locationIdFk;
+    private String categoryId;  // Cambiado de Category a String
     private ReportStatus status;
     private LocalDateTime creationDate;
     private List<String> comments;
-    private List<String> imageUrls;
     private int priority;
+    private List<String> imageUrls;
 
-    //builder
     @Builder
-    public Report(String id, String title, Category category, String description, Boolean solved, Boolean important,String locationIdFk, ReportStatus status, LocalDateTime creationDate, List<String> comments, int priority, List<String> imageUrls) {
+    public Report(String id, String title, String description, Boolean solved, 
+                 Boolean important, String categoryId, ReportStatus status, 
+                 LocalDateTime creationDate, List<String> comments, int priority,
+                 List<String> imageUrls) {
         this.id = id;
         this.title = title;
-        this.category = category;
         this.description = description;
         this.solved = solved;
         this.important = important;
-        this.locationIdFk = locationIdFk;
+        this.categoryId = categoryId;
         this.status = status;
         this.creationDate = creationDate;
         this.comments = comments;
@@ -59,13 +58,7 @@ public class Report {
     //getters y setters
 
 
-    public Category getCategory() {
-        return category;
-    }
 
-    public void setCategory(Category category) {
-        this.category = category;
-    }
 
     public Boolean getSolved() {
         return solved;
@@ -107,13 +100,6 @@ public class Report {
         this.description = description;
     }
 
-    public String getLocationIdFk() {
-        return locationIdFk;
-    }
-
-    public void setLocationIdFk(String locationIdFk) {
-        this.locationIdFk = locationIdFk;
-    }
 
     public ReportStatus getStatus() {
         return status;

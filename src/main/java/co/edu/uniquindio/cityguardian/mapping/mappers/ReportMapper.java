@@ -1,25 +1,25 @@
 package co.edu.uniquindio.cityguardian.mapping.mappers;
 
-
 import co.edu.uniquindio.cityguardian.mapping.dto.CreateReportDto;
 import co.edu.uniquindio.cityguardian.mapping.dto.ReportDto;
 import co.edu.uniquindio.cityguardian.model.Report;
+import co.edu.uniquindio.cityguardian.model.ReportStatus;
+import co.edu.uniquindio.cityguardian.model.Category;
 import org.bson.types.ObjectId;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
 @Mapper(componentModel = "spring")
 public interface ReportMapper {
 
-    @Mapping(target = "status", constant = "CREATED")
-    @Mapping(target = "category", constant = "WITHOUT_CATEGORY")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "status", expression = "java(ReportStatus.CREATED)")
     @Mapping(target = "solved", constant = "false")
     @Mapping(target = "important", constant = "false")
-    @Mapping(target = "creationDate", expression = "java(java.time.ZonedDateTime.now(java.time.ZoneId.of(\"America/Bogota\")).toLocalDateTime())")
-    @Mapping(target = "imageUrls", source = "imageUrls") // Mapear explícitamente imageUrls
+    @Mapping(target = "creationDate", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "comments", ignore = true)
+    @Mapping(target = "priority", constant = "0")
+    @Mapping(target = "categoryId", source = "categoryId")
     Report toDocument(CreateReportDto reportDto);
 
     CreateReportDto toDTO(Report report);
@@ -33,5 +33,4 @@ public interface ReportMapper {
     default ObjectId map(String value) {
         return value != null ? new ObjectId(value) : null;
     }
-
 }

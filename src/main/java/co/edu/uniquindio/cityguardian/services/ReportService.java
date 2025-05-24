@@ -5,6 +5,7 @@ import co.edu.uniquindio.cityguardian.mapping.dto.CreateReportDto;
 import co.edu.uniquindio.cityguardian.mapping.dto.EditReportDto;
 import co.edu.uniquindio.cityguardian.mapping.dto.FilterReportDto;
 import co.edu.uniquindio.cityguardian.mapping.dto.ReportDto;
+import co.edu.uniquindio.cityguardian.model.Report;
 
 import java.util.List;
 
@@ -19,4 +20,5 @@ public interface ReportService {
     void markReportAsImportant(String id) throws Exception;
     List<ReportDto> filterReports(FilterReportDto filterReportDto) throws Exception;
     void addComment(CommentDto commentDto, String id) throws Exception;
+    List<Report> getReportsByCategory(String categoryId);
 }

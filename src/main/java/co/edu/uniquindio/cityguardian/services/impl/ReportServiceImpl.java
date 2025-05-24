@@ -8,6 +8,7 @@ import co.edu.uniquindio.cityguardian.mapping.dto.FilterReportDto;
 import co.edu.uniquindio.cityguardian.mapping.dto.ReportDto;
 import co.edu.uniquindio.cityguardian.mapping.mappers.ReportMapper;
 import co.edu.uniquindio.cityguardian.model.Report;
+import co.edu.uniquindio.cityguardian.repository.CategoryRepository;
 import co.edu.uniquindio.cityguardian.repository.ReportRepository;
 import co.edu.uniquindio.cityguardian.services.ReportService;
 import co.edu.uniquindio.cityguardian.services.ImagenService;
@@ -18,6 +19,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
+import co.edu.uniquindio.cityguardian.model.Category;
 
 import java.util.*;
 
@@ -36,10 +38,16 @@ public class ReportServiceImpl implements ReportService {
     private ObjectMapper objectMapper;
     @Autowired
     private MongoTemplate mongoTemplate;
+    @Autowired
+    private CategoryRepository categoryRepository;
 
 
     @Override
     public void createNewReport(CreateReportDto reportDto, List<String> imageUrls) throws Exception {
+        // Verificar que la categoría existe
+        Category category = categoryRepository.findById(reportDto.categoryId())
+            .orElseThrow(() -> new Exception("La categoría no existe"));
+
         Report report = reportMapper.toDocument(reportDto);
         report.setImageUrls(imageUrls); // Establecer explícitamente las URLs de las imágenes
         repository.save(report);
@@ -168,5 +176,8 @@ public class ReportServiceImpl implements ReportService {
         repository.save(report);
     }
 
+    public List<Report> getReportsByCategory(String categoryId) {
+        return repository.findByCategoryId(categoryId);
+    }
 
 }

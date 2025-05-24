@@ -3,6 +3,7 @@ package co.edu.uniquindio.cityguardian.controller;
 
 import co.edu.uniquindio.cityguardian.dto.ImagenDTO;
 import co.edu.uniquindio.cityguardian.mapping.dto.*;
+import co.edu.uniquindio.cityguardian.model.Report;
 import co.edu.uniquindio.cityguardian.services.ReportService;
 import co.edu.uniquindio.cityguardian.services.ImagenService;
 import jakarta.validation.Valid;
@@ -84,5 +85,10 @@ public class ReportController {
     public ResponseEntity<MessageDTO<String>> addComment(@Valid @RequestBody CommentDto commentDto, @PathVariable String id) throws Exception {
         reportService.addComment(commentDto, id);
         return ResponseEntity.status(200).body(new MessageDTO<>(false, "Comentario agregado correctamente"));
+    }
+
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<MessageDTO<List<Report>>> getReportsByCategory(@PathVariable String categoryId) {
+        return ResponseEntity.ok(new MessageDTO<>(false, reportService.getReportsByCategory(categoryId)));
     }
 }
