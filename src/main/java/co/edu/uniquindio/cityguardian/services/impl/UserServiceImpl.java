@@ -1,8 +1,10 @@
 package co.edu.uniquindio.cityguardian.services.impl;
 
+import co.edu.uniquindio.cityguardian.dto.EmailDTO;
 import co.edu.uniquindio.cityguardian.exceptions.RepeatedElementException;
 import co.edu.uniquindio.cityguardian.mapping.dto.CreateUserDto;
 import co.edu.uniquindio.cityguardian.mapping.dto.EditUserDto;
+import co.edu.uniquindio.cityguardian.mapping.dto.MessageDTO;
 import co.edu.uniquindio.cityguardian.mapping.dto.UserDto;
 import co.edu.uniquindio.cityguardian.mapping.mappers.UserMapper;
 import co.edu.uniquindio.cityguardian.model.Report;
@@ -11,20 +13,21 @@ import co.edu.uniquindio.cityguardian.model.dto.AuthResponseDTO;
 import co.edu.uniquindio.cityguardian.model.dto.LoginRequest;
 import co.edu.uniquindio.cityguardian.repository.UserRepository;
 import co.edu.uniquindio.cityguardian.security.JWTUtils;
+import co.edu.uniquindio.cityguardian.services.EmailService;
 import co.edu.uniquindio.cityguardian.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
 import javax.naming.AuthenticationException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -41,6 +44,8 @@ public class UserServiceImpl implements UserService {
     private  PasswordEncoder passwordEncoder;
     @Autowired
     private JWTUtils jwtUtils;
+    @Autowired
+    private EmailService emailService;
 
     @Override
     public AuthResponseDTO login(LoginRequest loginRequest) throws Exception {
@@ -120,4 +125,45 @@ public class UserServiceImpl implements UserService {
         return users.stream().map(userMapper::toUserDto).toList();
     }
 
+    @Override
+    public ResponseEntity<MessageDTO<String>> sendVerificationCode(String email) throws Exception {
+        try {
+            if (!emailExist(email)) {
+                throw new AuthenticationException("El email no existe");
+            }
+
+            String verificationCode = String.format("%06d", new Random().nextInt(1000000));
+
+            User user = repository.findByEmail(email)
+                    .orElseThrow(() -> new AuthenticationException("Usuario no encontrado"));
+
+            user.setVerificationCode(verificationCode);
+            user.setVerificationCodeExpiry(LocalDateTime.now().plusMinutes(15));
+            repository.save(user);
+            EmailDTO emailDTO = getEmailDTO(user, verificationCode);
+            emailService.enviarEmail(emailDTO);
+
+
+            return ResponseEntity.ok(new MessageDTO<>(false, "Código de verificación enviado exitosamente"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageDTO<>(true, e.getMessage()));
+        }
+    }
+
+    @NotNull
+    private static EmailDTO getEmailDTO(User user, String verificationCode) {
+        EmailDTO emailDTO = new EmailDTO();
+        emailDTO.setAsunto("\uD83D\uDD10 Verifica tu cuenta en CityGuardian");
+        emailDTO.setCuerpo(
+                "<p>Hola, " + user.getName() + "</p>" +
+                "<p>Gracias por registrarte en <strong>CityGuardian</strong>, la plataforma para reportar incidentes de inseguridad en tu ciudad y mantenerte informado.</p>" +
+                "<p>Para completar la verificación de tu cuenta, ingresa el siguiente código en el sitio web:</p>" +
+                "<h1 style='font-size: 28px; font-weight: bold;'>" + verificationCode + "</h1>" +
+                "<p>Este código expirará en 15 minutos.</p>" +
+                "<p>Gracias por ayudarnos a construir ciudades más seguras.<br><strong>– El equipo de CityGuardian</strong></p>"
+        );
+        emailDTO.setDestinatario(user.getEmail());
+        return emailDTO;
+    }
 }
