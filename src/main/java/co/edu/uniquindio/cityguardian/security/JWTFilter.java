@@ -39,14 +39,14 @@ public class JWTFilter extends OncePerRequestFilter {
 
         try {
             Jws<Claims> payload = jwtUtil.parseJwt(token);
-            String username = payload.getPayload().getSubject();
+            String email = payload.getPayload().get("email", String.class);
             String role = payload.getPayload().get("role", String.class);
 
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 String roleWithPrefix = role.startsWith("ROLE_") ? role : "ROLE_" + role;
-                
+
                 UserDetails userDetails = User.builder()
-                        .username(username)
+                        .username(email)
                         .password("")
                         .authorities(new SimpleGrantedAuthority(roleWithPrefix))
                         .build();
@@ -54,8 +54,7 @@ public class JWTFilter extends OncePerRequestFilter {
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
-                        userDetails.getAuthorities()
-                );
+                        userDetails.getAuthorities());
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
@@ -76,4 +75,4 @@ public class JWTFilter extends OncePerRequestFilter {
         }
         return null;
     }
-} 
+}

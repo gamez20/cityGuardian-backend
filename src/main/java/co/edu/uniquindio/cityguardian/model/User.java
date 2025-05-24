@@ -24,6 +24,8 @@ public class User {
     private Boolean isActive;
     private UserRol role;
     private LocalDateTime registerDate;
+    private String verificationCode;
+    private LocalDateTime verificationCodeExpiry;
 
     public String getLastName() {
         return lastName;
@@ -113,8 +115,22 @@ public class User {
         this.registerDate = registerDate;
     }
 
+    public String getVerificationCode() {return verificationCode; }
+
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
+    }
+
+    public LocalDateTime getVerificationCodeExpiry() {
+        return verificationCodeExpiry;
+    }
+    
+    public void setVerificationCodeExpiry(LocalDateTime verificationCodeExpiry) {
+        this.verificationCodeExpiry = verificationCodeExpiry;
+    }
+
     @Builder
-    public User(String name, String city, String address, String email, String phone, String password, UserRol role, Boolean isActive, LocalDateTime registerDate) {
+    public User(String name, String city, String address, String email, String phone, String password, UserRol role, Boolean isActive, LocalDateTime registerDate, LocalDateTime verificationCodeExpiry, String verificationCode) {
         this.name = name;
         this.city = city;
         this.address = address;
@@ -124,6 +140,8 @@ public class User {
         this.role = role;
         this.isActive = isActive;
         this.registerDate = registerDate;
+        this.verificationCode = verificationCode;
+        this.verificationCodeExpiry = verificationCodeExpiry;
     }
 
 }

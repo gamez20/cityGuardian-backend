@@ -31,7 +31,6 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<MessageDTO<String>> createNewUser(@Valid @RequestBody CreateUserDto account) throws Exception {
-        System.out.println("createNewUser: " + account.toString());
         try {
             userService.createNewUser(account);
             return ResponseEntity.status(201).body(new MessageDTO<>(false, "Su registro ha sido exitoso"));
