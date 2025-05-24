@@ -27,10 +27,10 @@ public class ImagenController {
         }
     }
 
-    @DeleteMapping("/eliminar/{id}")
-    public ResponseEntity<String> eliminarImagen(@PathVariable String id) {
+    @DeleteMapping("/eliminar")
+    public ResponseEntity<String> eliminarImagen(@RequestParam String url) {
         try {
-            return ResponseEntity.ok(imagenService.eliminarImagen(id));
+            return ResponseEntity.ok(imagenService.eliminarImagen(url));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }

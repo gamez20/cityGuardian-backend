@@ -61,15 +61,33 @@ public class ImagenServiceImpl implements ImagenService {
         return new ImagenDTO(url, publicId);
     }
 
-    @Override
-    public String eliminarImagen(String idImagen) throws Exception {
-        Map resultado = cloudinary.uploader().destroy(idImagen, ObjectUtils.emptyMap());
-        String estado = (String) resultado.get("result");
+    public String eliminarImagen(String imageUrl) throws Exception {
+        try {
+            // Extraer el public_id de la URL
+            String publicId = extraerPublicIdDeUrl(imageUrl);
 
-        if (!"ok".equals(estado)) {
-            throw new Exception("No se pudo eliminar la imagen");
+            // Eliminar la imagen usando el public_id
+            Map result = cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+
+            if (result.get("result").equals("ok")) {
+                return "Imagen eliminada correctamente";
+            } else {
+                throw new Exception("No se pudo eliminar la imagen");
+            }
+        } catch (Exception e) {
+            throw new Exception("Error al eliminar la imagen: " + e.getMessage());
         }
+    }
 
-        return "Imagen eliminada correctamente";
+    private String extraerPublicIdDeUrl(String imageUrl) {
+        // Ejemplo URL: https://res.cloudinary.com/dfacja0b6/image/upload/v1748052464/CityGuardian/fxgfrniwyo4emnumtwhp.jpg
+        String[] partes = imageUrl.split("/");
+        // Obtenemos las últimas dos partes (carpeta/nombre)
+        String nombreArchivo = partes[partes.length - 1];
+        String carpeta = partes[partes.length - 2];
+        // Eliminamos la extensión del archivo
+        String nombreSinExtension = nombreArchivo.substring(0, nombreArchivo.lastIndexOf('.'));
+        // Construimos el public_id
+        return carpeta + "/" + nombreSinExtension;
     }
 }
