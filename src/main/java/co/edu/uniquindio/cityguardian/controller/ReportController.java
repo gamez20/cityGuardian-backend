@@ -2,9 +2,11 @@ package co.edu.uniquindio.cityguardian.controller;
 
 
 import co.edu.uniquindio.cityguardian.dto.ImagenDTO;
+import co.edu.uniquindio.cityguardian.dto.UserReportsDTO;
 import co.edu.uniquindio.cityguardian.mapping.dto.*;
 import co.edu.uniquindio.cityguardian.services.ReportService;
 import co.edu.uniquindio.cityguardian.services.ImagenService;
+import co.edu.uniquindio.cityguardian.utils.TokenUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.naming.AuthenticationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,7 +31,7 @@ public class ReportController {
     private ImagenService imagenService;
 
     @PostMapping("/filter")
-    public List<ReportDto> filterReports(@RequestBody  FilterReportDto filterReportDto) throws Exception{
+    public List<ReportDTO> filterReports(@RequestBody  FilterReportDto filterReportDto) throws Exception{
         return reportService.filterReports(filterReportDto);
     }
 
@@ -36,19 +39,23 @@ public class ReportController {
     public ResponseEntity<MessageDTO<String>> createNewReport(
             @Valid @RequestPart("report") CreateReportDto reportDto,
             @RequestPart(value = "imagenes", required = false) List<MultipartFile> imagenes) throws Exception {
-        
-        List<String> imageUrls = new ArrayList<>();
-        if (imagenes != null && !imagenes.isEmpty()) {
-            List<ImagenDTO> imageDTOs = imagenService.subirImagenes(imagenes);
-            imageUrls = imageDTOs.stream().map(ImagenDTO::getUrl).collect(Collectors.toList());
+        try {
+            List<String> imageUrls = new ArrayList<>();
+            if (imagenes != null && !imagenes.isEmpty()) {
+                List<ImagenDTO> imageDTOs = imagenService.subirImagenes(imagenes);
+                imageUrls = imageDTOs.stream().map(ImagenDTO::getUrl).collect(Collectors.toList());
+            }
+
+            reportService.createNewReport(reportDto, imageUrls);
+            return ResponseEntity.status(201).body(new MessageDTO<>(false, "Su reporte ha sido creado exitosamente"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageDTO<>(true, e.getMessage()));
         }
-        
-        reportService.createNewReport(reportDto, imageUrls);
-        return ResponseEntity.status(201).body(new MessageDTO<>(false, "Su reporte ha sido creado exitosamente"));
     }
 
     @PutMapping("/{id}")
-    public ReportDto editReport(@Valid @RequestBody EditReportDto reportDto, @PathVariable String id) throws Exception {
+    public ReportDTO editReport(@Valid @RequestBody EditReportDto reportDto, @PathVariable String id) throws Exception {
         return reportService.updateReport(reportDto, id);
     }
 
@@ -59,7 +66,7 @@ public class ReportController {
     }
 
     @GetMapping("/{id}")
-    public ReportDto getReportById(@PathVariable String id) throws Exception {
+    public ReportDTO getReportById(@PathVariable String id) throws Exception {
         return reportService.getReportById(id);
     }
 
@@ -76,7 +83,7 @@ public class ReportController {
     }
 
     @GetMapping
-    public List<ReportDto> getReports(){
+    public List<ReportDTO> getReports(){
         return reportService.getReports();
     }
 

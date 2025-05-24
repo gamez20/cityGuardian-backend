@@ -5,11 +5,15 @@ import co.edu.uniquindio.cityguardian.mapping.dto.CommentDto;
 import co.edu.uniquindio.cityguardian.mapping.dto.CreateReportDto;
 import co.edu.uniquindio.cityguardian.mapping.dto.EditReportDto;
 import co.edu.uniquindio.cityguardian.mapping.dto.FilterReportDto;
-import co.edu.uniquindio.cityguardian.mapping.dto.ReportDto;
+import co.edu.uniquindio.cityguardian.mapping.dto.ReportDTO;
 import co.edu.uniquindio.cityguardian.mapping.mappers.ReportMapper;
 import co.edu.uniquindio.cityguardian.model.Report;
+import co.edu.uniquindio.cityguardian.model.User;
 import co.edu.uniquindio.cityguardian.repository.ReportRepository;
+import co.edu.uniquindio.cityguardian.repository.UserRepository;
 import co.edu.uniquindio.cityguardian.services.ReportService;
+import co.edu.uniquindio.cityguardian.utils.TokenUtils;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -18,6 +22,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+
+import javax.naming.AuthenticationException;
 
 @Service
 public class ReportServiceImpl implements ReportService {
@@ -30,19 +36,29 @@ public class ReportServiceImpl implements ReportService {
     private ObjectMapper objectMapper;
     @Autowired
     private MongoTemplate mongoTemplate;
-
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
-    public void createNewReport(CreateReportDto reportDto, List<String> imageUrls) throws Exception {
+    public ReportDTO createNewReport(CreateReportDto reportDto, List<String> imageUrls) throws Exception {
+        String email = TokenUtils.getEmailFromToken();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AuthenticationException("Usuario no encontrado"));
+
         Report report = reportMapper.toDocument(reportDto);
-        repository.save(report);
+        report.setUserId(user.getId());
+        Report savedReport = repository.save(report);
+
+        user.addReportId(savedReport.getId());
+        userRepository.save(user);
+        return reportMapper.toReportDto(savedReport);
 
     }
 
     @Override
-    public ReportDto updateReport(EditReportDto updatedReport, String id) throws Exception {
+    public ReportDTO updateReport(EditReportDto updatedReport, String id) throws Exception {
         Optional<Report> optionalReport = repository.findById(id);
-        if (optionalReport.isEmpty()){
+        if (optionalReport.isEmpty()) {
             throw new RuntimeException("Reporte no encontrado");
         }
 
@@ -53,24 +69,29 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public void deleteReport(String id) throws Exception {
-        Optional<Report> reportOptional = repository.findById(id);
-        if (reportOptional.isEmpty()){
-            throw  new RuntimeException("Reporte no encontrado");
-        }
+        Report report = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reporte no encontrado"));
+
+        User user = userRepository.findById(report.getUserId())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        user.removeReportId(id);
+        userRepository.save(user);
+
         repository.deleteById(id);
     }
 
     @Override
-    public ReportDto getReportById(String id) throws Exception {
+    public ReportDTO getReportById(String id) throws Exception {
         Optional<Report> optionalReport = repository.findById(id);
-        if (optionalReport.isEmpty()){
+        if (optionalReport.isEmpty()) {
             throw new RuntimeException("Reporte no encontrado");
         }
         return reportMapper.toReportDto(optionalReport.get());
     }
 
     @Override
-    public List<ReportDto> getReports() {
+    public List<ReportDTO> getReports() {
         List<Report> reports = repository.findAll();
         return reports.stream().map(reportMapper::toReportDto).toList();
     }
@@ -78,7 +99,7 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public void markReportAsSolved(String id) throws Exception {
         Optional<Report> optionalReport = repository.findById(id);
-        if (optionalReport.isEmpty()){
+        if (optionalReport.isEmpty()) {
             throw new RuntimeException("Reporte no encontrado");
         }
         Report report = optionalReport.get();
@@ -89,7 +110,7 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public void markReportAsImportant(String id) throws Exception {
         Optional<Report> optionalReport = repository.findById(id);
-        if (optionalReport.isEmpty()){
+        if (optionalReport.isEmpty()) {
             throw new RuntimeException("Reporte no encontrado");
         }
         Report report = optionalReport.get();
@@ -99,7 +120,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<ReportDto> filterReports(FilterReportDto filterReportDto) throws Exception {
+    public List<ReportDTO> filterReports(FilterReportDto filterReportDto) throws Exception {
 
         Query query = new Query();
 
@@ -128,14 +149,13 @@ public class ReportServiceImpl implements ReportService {
         return reports.stream().map(reportMapper::toReportDto).toList();
     }
 
-
-    public boolean idExist(String id){
-        return  repository.findById(id).isPresent();
+    public boolean idExist(String id) {
+        return repository.findById(id).isPresent();
     }
 
     public void addComment(CommentDto commentDto, String id) throws Exception {
         Optional<Report> optionalReport = repository.findById(id);
-        if (optionalReport.isEmpty()){
+        if (optionalReport.isEmpty()) {
             throw new RepeatedElementException("No se puede agregar el comentario, por que no existe el reporte");
         }
         Report report = optionalReport.get();
@@ -147,9 +167,7 @@ public class ReportServiceImpl implements ReportService {
             report.getComments().add(commentDto.description());
         }
 
-
         repository.save(report);
     }
-
 
 }

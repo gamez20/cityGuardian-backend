@@ -2,7 +2,7 @@ package co.edu.uniquindio.cityguardian.mapping.dto;
 
 import org.springframework.data.annotation.Id;
 
-public record ReportDto(
+public record ReportDTO(
 
         @Id
         String id,

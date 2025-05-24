@@ -1,5 +1,6 @@
 package co.edu.uniquindio.cityguardian.controller;
 
+import co.edu.uniquindio.cityguardian.dto.UserReportsDTO;
 import co.edu.uniquindio.cityguardian.mapping.dto.CreateUserDto;
 import co.edu.uniquindio.cityguardian.mapping.dto.EditUserDto;
 import co.edu.uniquindio.cityguardian.mapping.dto.MessageDTO;
@@ -75,6 +76,19 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.badRequest()
                     .body(new MessageDTO<>(true, e.getMessage()));
+        }
+    }
+
+    @GetMapping("/myReports")
+    public ResponseEntity<UserReportsDTO> getMyReports() throws Exception {
+        try {
+            String email = TokenUtils.getEmailFromToken();
+            if (email == null) {
+                throw new AuthenticationException("Usuario sin email registrado");
+            }
+            return ResponseEntity.ok(userService.getUserReports(email));
+        } catch (Exception e) {
+            throw new RuntimeException("Error al obtener los reportes del usuario: " + e.getMessage());
         }
     }
 }

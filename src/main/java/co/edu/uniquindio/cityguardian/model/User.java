@@ -5,6 +5,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Document("users")
 @Setter
@@ -26,6 +28,24 @@ public class User {
     private LocalDateTime registerDate;
     private String verificationCode;
     private LocalDateTime verificationCodeExpiry;
+    private List<String> reportIds = new ArrayList<>();
+
+    public void addReportId(String reportId) {
+        if (reportIds == null) {
+            reportIds = new ArrayList<>();
+        }
+        reportIds.add(reportId);
+    }
+
+    public void removeReportId(String reportId) {
+        if (reportIds != null) {
+            reportIds.remove(reportId);
+        }
+    }
+
+    public List<String> getReportIds() {
+        return reportIds;
+    }
 
     public String getLastName() {
         return lastName;
@@ -115,7 +135,9 @@ public class User {
         this.registerDate = registerDate;
     }
 
-    public String getVerificationCode() {return verificationCode; }
+    public String getVerificationCode() {
+        return verificationCode;
+    }
 
     public void setVerificationCode(String verificationCode) {
         this.verificationCode = verificationCode;
@@ -124,13 +146,15 @@ public class User {
     public LocalDateTime getVerificationCodeExpiry() {
         return verificationCodeExpiry;
     }
-    
+
     public void setVerificationCodeExpiry(LocalDateTime verificationCodeExpiry) {
         this.verificationCodeExpiry = verificationCodeExpiry;
     }
 
     @Builder
-    public User(String name, String city, String address, String email, String phone, String password, UserRol role, Boolean isActive, LocalDateTime registerDate, LocalDateTime verificationCodeExpiry, String verificationCode) {
+    public User(String name, String city, String address, String email, String phone, String password, UserRol role,
+            Boolean isActive, LocalDateTime registerDate, LocalDateTime verificationCodeExpiry,
+            String verificationCode) {
         this.name = name;
         this.city = city;
         this.address = address;

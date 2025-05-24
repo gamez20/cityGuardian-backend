@@ -4,7 +4,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -30,10 +29,11 @@ public class Report {
     private LocalDateTime creationDate;
     private List<String> comments;
     private int priority;
+    private String userId;
 
     //builder
     @Builder
-    public Report(String id, String title, Category category, String description, Boolean solved, Boolean important,String locationIdFk, ReportStatus status, LocalDateTime creationDate, List<String> comments, int priority) {
+    public Report(String id, String title, Category category, String description, Boolean solved, Boolean important,String locationIdFk, ReportStatus status, LocalDateTime creationDate, List<String> comments, int priority, String userId) {
         this.id = id;
         this.title = title;
         this.category = category;
@@ -45,6 +45,7 @@ public class Report {
         this.creationDate = creationDate;
         this.comments = comments;
         this.priority = priority;
+        this.userId = userId;
     }
 
 
@@ -143,5 +144,13 @@ public class Report {
 
     public void setComments(List<String> comments) {
         this.comments = comments;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }
