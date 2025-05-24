@@ -40,6 +40,16 @@ public class UserController {
         return userService.getUserById(id);
     }
 
+    @GetMapping("/buscar")
+    public ResponseEntity<UserDto> buscarPorEmail(@RequestParam String email) {
+        try {
+            UserDto usuario = userService.getUserByEmail(email);
+            return ResponseEntity.ok(usuario);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     @GetMapping("/all")
     public List<UserDto> getUsers() {
         return userService.getUsers();

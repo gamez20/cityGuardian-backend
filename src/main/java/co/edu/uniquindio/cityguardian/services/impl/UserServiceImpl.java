@@ -75,6 +75,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserDto getUserByEmail(String email) throws Exception {
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("El email no puede estar vacío");
+        }
+
+        User user = repository.findByEmail(email)
+                .orElseThrow(() -> new AuthenticationException("Usuario no encontrado"));
+
+        return userMapper.toUserDto(user);
+    }
+
+    @Override
     public void createNewUser(CreateUserDto userDto) throws Exception {
 
         if (emailExist(userDto.email())) {

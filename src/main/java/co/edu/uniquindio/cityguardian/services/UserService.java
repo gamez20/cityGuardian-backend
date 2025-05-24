@@ -13,6 +13,7 @@ import java.util.List;
 
 public interface UserService {
 
+    UserDto getUserByEmail(String email) throws Exception;
     AuthResponseDTO login (LoginRequest loginRequest) throws Exception;
     void createNewUser(CreateUserDto userDto) throws Exception;
     UserDto updateUser(EditUserRequest updatedUser) throws Exception;
