@@ -19,8 +19,11 @@ public class FirebaseConfig {
     @Value("${firebase.credentials.path}")
     private String firebaseConfigPath;
 
-    @Autowired
+    @Value("${firebase.project.id}")
+    private String projectId;
+
     @Qualifier("webApplicationContext")
+    @Autowired
     private ResourceLoader resourceLoader;
 
     @PostConstruct
@@ -31,6 +34,7 @@ public class FirebaseConfig {
                     .getInputStream();
 
             FirebaseOptions options = FirebaseOptions.builder()
+                    .setProjectId(projectId)
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .build();
 
