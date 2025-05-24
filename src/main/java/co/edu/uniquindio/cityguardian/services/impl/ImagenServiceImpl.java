@@ -82,7 +82,7 @@ public class ImagenServiceImpl implements ImagenService {
     private String extraerPublicIdDeUrl(String imageUrl) {
         // Ejemplo URL: https://res.cloudinary.com/dfacja0b6/image/upload/v1748052464/CityGuardian/fxgfrniwyo4emnumtwhp.jpg
         String[] partes = imageUrl.split("/");
-        // Obtenemos las últimas dos partes (carpeta/nombre)
+        // Obtenemos las últimas dos partes (carpeta/nombre)    
         String nombreArchivo = partes[partes.length - 1];
         String carpeta = partes[partes.length - 2];
         // Eliminamos la extensión del archivo
