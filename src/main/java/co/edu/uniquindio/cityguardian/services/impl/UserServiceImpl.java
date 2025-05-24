@@ -9,7 +9,6 @@ import co.edu.uniquindio.cityguardian.mapping.dto.MessageDTO;
 import co.edu.uniquindio.cityguardian.mapping.dto.ReportDTO;
 import co.edu.uniquindio.cityguardian.mapping.dto.UserDto;
 import co.edu.uniquindio.cityguardian.mapping.mappers.UserMapper;
-import co.edu.uniquindio.cityguardian.model.Report;
 import co.edu.uniquindio.cityguardian.model.User;
 import co.edu.uniquindio.cityguardian.model.dto.AuthResponseDTO;
 import co.edu.uniquindio.cityguardian.model.dto.LoginRequest;
@@ -19,7 +18,6 @@ import co.edu.uniquindio.cityguardian.services.EmailService;
 import co.edu.uniquindio.cityguardian.services.ReportService;
 import co.edu.uniquindio.cityguardian.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -225,5 +223,28 @@ public class UserServiceImpl implements UserService {
                 user.getId(),
                 user.getName(),
                 reports);
+    }
+
+    @Override
+    public ResponseEntity<MessageDTO<String>> changePassword(String email, String newPassword) throws Exception {
+        try {
+
+            User user = repository.findByEmail(email)
+                    .orElseThrow(() -> new AuthenticationException("Usuario no encontrado"));
+
+            if (newPassword == null || newPassword.trim().isEmpty()) {
+                throw new IllegalArgumentException("La nueva contraseña no puede estar vacía");
+            }
+
+            String encodedPassword = passwordEncoder.encode(newPassword);
+
+            user.setPassword(encodedPassword);
+            repository.save(user);
+
+            return ResponseEntity.ok(new MessageDTO<>(false, "Contraseña actualizada exitosamente"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageDTO<>(true, e.getMessage()));
+        }
     }
 }

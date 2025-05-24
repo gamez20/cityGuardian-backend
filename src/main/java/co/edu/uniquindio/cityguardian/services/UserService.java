@@ -22,4 +22,5 @@ public interface UserService {
     ResponseEntity<MessageDTO<String>> sendVerificationCode(String email) throws Exception;
     ResponseEntity<MessageDTO<String>> verifyCode(String email, String code) throws Exception;
     UserReportsDTO getUserReports(String email) throws Exception;
+    ResponseEntity<MessageDTO<String>> changePassword(String email, String newPassword) throws Exception;
 }
