@@ -1,7 +1,8 @@
 package co.edu.uniquindio.cityguardian.services;
 
 import co.edu.uniquindio.cityguardian.mapping.dto.CommentDto;
-import co.edu.uniquindio.cityguardian.mapping.dto.CreateReportDto;
+import co.edu.uniquindio.cityguardian.model.dto.CreateReportRequest;
+import co.edu.uniquindio.cityguardian.model.dto.LocationDTO;
 import co.edu.uniquindio.cityguardian.mapping.dto.EditReportDto;
 import co.edu.uniquindio.cityguardian.mapping.dto.FilterReportDto;
 import co.edu.uniquindio.cityguardian.model.Report;
@@ -11,8 +12,7 @@ import java.util.List;
 
 public interface ReportService {
 
-    ReportDTO createNewReport(CreateReportDto reportDto, List<String> imageUrls) throws Exception;
-
+    ReportDTO createNewReport(CreateReportRequest reportDto, List<String> imageUrls) throws Exception;
     ReportDTO updateReport(EditReportDto updatedReport, String id) throws Exception;
 
     void deleteReport(String id) throws Exception;
@@ -38,4 +38,5 @@ public interface ReportService {
     void markAsResolved(String id) throws Exception;
 
     void sendToReview(String id) throws Exception;
+    List<ReportDTO> findReportsNearLocation(LocationDTO location, double radiusInKm) throws Exception;
 }

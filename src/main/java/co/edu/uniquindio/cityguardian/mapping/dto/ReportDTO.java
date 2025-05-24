@@ -1,5 +1,6 @@
 package co.edu.uniquindio.cityguardian.mapping.dto;
 
+import co.edu.uniquindio.cityguardian.model.dto.LocationDTO;
 import co.edu.uniquindio.cityguardian.model.ReportStatus;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,5 +18,7 @@ public record ReportDTO(
     int priority,
     String userId,
     List<String> imageUrls,
+    LocationDTO location,
     String rejectReason
-) {}
+) {
+}
