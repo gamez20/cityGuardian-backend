@@ -1,5 +1,7 @@
 package co.edu.uniquindio.cityguardian.mapping.mappers;
 
+import co.edu.uniquindio.cityguardian.mapping.dto.CategoryDTO;
+import co.edu.uniquindio.cityguardian.model.Category;
 import co.edu.uniquindio.cityguardian.model.dto.CreateReportRequest;
 import co.edu.uniquindio.cityguardian.mapping.dto.ReportDTO;
 import co.edu.uniquindio.cityguardian.model.Report;
@@ -8,7 +10,6 @@ import co.edu.uniquindio.cityguardian.model.dto.LocationDTO;
 import org.bson.types.ObjectId;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import java.util.Optional;
 
 @Mapper(componentModel = "spring")
 public interface ReportMapper {
@@ -20,7 +21,7 @@ public interface ReportMapper {
     @Mapping(target = "creationDate", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "comments", ignore = true)
     @Mapping(target = "priority", constant = "0")
-    @Mapping(target = "categoryId", source = "categoryId")
+    @Mapping(target = "category", ignore = true)
     @Mapping(target = "location", source = "location")
     Report toDocument(CreateReportRequest reportDto);
 
@@ -49,4 +50,17 @@ public interface ReportMapper {
         return new LocationDTO(location.getLatitude(), location.getLongitude());
     }
 
+    default CategoryDTO map(Category category) {
+        return new CategoryDTO(category.getId(), category.getName(), category.getDescription());
+    }
+
+    default Category map(CategoryDTO categoryDTO) {
+        if (categoryDTO == null)
+            return null;
+        Category category = new Category();
+        category.setId(categoryDTO.id());
+        category.setName(categoryDTO.name());
+        category.setDescription(categoryDTO.description());
+        return category;
+    }
 }

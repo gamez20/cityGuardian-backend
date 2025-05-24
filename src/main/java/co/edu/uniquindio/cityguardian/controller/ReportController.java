@@ -40,7 +40,6 @@ public class ReportController {
             @Valid @RequestPart("report") CreateReportRequest reportDto,
             @RequestPart(value = "imagenes", required = false) List<MultipartFile> imagenes) throws Exception {
         try {
-            System.out.println(reportDto);
             List<String> imageUrls = new ArrayList<>();
             if (imagenes != null && !imagenes.isEmpty()) {
                 List<ImagenDTO> imageDTOs = imagenService.subirImagenes(imagenes);

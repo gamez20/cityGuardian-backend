@@ -61,6 +61,7 @@ public class ReportServiceImpl implements ReportService {
                 .orElseThrow(() -> new AuthenticationException("Usuario no encontrado"));
 
         Report report = reportMapper.toDocument(reportDto);
+        report.setCategory(category);
         report.setUserId(user.getId());
         report.setImageUrls(imageUrls);
         Report savedReport = repository.save(report);
@@ -77,13 +78,13 @@ public class ReportServiceImpl implements ReportService {
                 .orElseThrow(() -> new RuntimeException("Reporte no encontrado"));
 
         // Validar que la categoría existe
-        categoryRepository.findById(updatedReport.categoryId())
+        Category category = categoryRepository.findById(updatedReport.categoryId())
                 .orElseThrow(() -> new Exception("La categoría no existe"));
 
         // Actualizar campos básicos
         existingReport.setTitle(updatedReport.title());
         existingReport.setDescription(updatedReport.description());
-        existingReport.setCategoryId(updatedReport.categoryId());
+        existingReport.setCategory(category);
 
         // Actualizar las URLs de las imágenes con la nueva lista
         existingReport.setImageUrls(updatedReport.imageUrls());
