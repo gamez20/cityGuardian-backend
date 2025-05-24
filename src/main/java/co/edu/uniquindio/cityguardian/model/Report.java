@@ -9,6 +9,8 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.ArrayList;
+
 @Data
 @Document("reports")
 @Getter
@@ -31,6 +33,7 @@ public class Report {
     @Field("reject_reason")
     private String rejectReason;
     private Location location;
+    private List<ReportStateHistory> stateHistory = new ArrayList<>();
 
     @Builder
     public Report(String id, String title, String description, Boolean solved,
@@ -50,6 +53,10 @@ public class Report {
         this.userId = userId;
         this.imageUrls = imageUrls;
         this.location = location;
+        this.stateHistory = stateHistory != null ? new ArrayList<>(stateHistory) : new ArrayList<>();
+        if (status != null && (this.stateHistory == null || this.stateHistory.isEmpty())) {
+            this.stateHistory.add(new ReportStateHistory(status, creationDate != null ? creationDate : LocalDateTime.now(), null));
+        }
     }
 
     // methods
@@ -62,6 +69,29 @@ public class Report {
     public static void viewHistory() {
     }
 
+    public void addStateChange(ReportStatus newStatus, String reason) {
+        if (this.stateHistory == null) {
+            this.stateHistory = new ArrayList<>();
+        }
+
+        // Crear nuevo estado
+        ReportStateHistory newStateHistory = new ReportStateHistory(newStatus, LocalDateTime.now(), reason);
+
+        // Agregar a la lista existente
+        this.stateHistory.add(newStateHistory);
+
+        // Actualizar estado actual
+        this.status = newStatus;
+
+        // Si el nuevo estado es REJECTED, agregar la razón
+        if (ReportStatus.REJECTED.equals(newStatus)) {
+            this.rejectReason = reason;
+        }
+        // Si el estado anterior era REJECTED y cambia a otro estado, limpiar la razón
+        else if (this.rejectReason != null && !ReportStatus.REJECTED.equals(newStatus)) {
+            this.rejectReason = null;
+        }
+    }
     // getters y setters
 
     public Boolean getSolved() {
@@ -174,5 +204,13 @@ public class Report {
 
     public void setLocation(Location location) {
         this.location = location;
+    }
+
+    public List<ReportStateHistory> getStateHistory() {
+        return stateHistory;
+    }
+
+    public void setStateHistory(List<ReportStateHistory> stateHistory) {
+        this.stateHistory = stateHistory;
     }
 }

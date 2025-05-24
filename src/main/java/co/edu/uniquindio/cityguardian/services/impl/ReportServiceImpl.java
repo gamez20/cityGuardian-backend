@@ -216,8 +216,7 @@ public class ReportServiceImpl implements ReportService {
     public void markAsVerified(String id) throws Exception {
         Report report = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reporte no encontrado"));
-        report.setStatus(ReportStatus.VERIFIED);
-        report.setRejectReason(null);
+        report.addStateChange(ReportStatus.VERIFIED, null);
         repository.save(report);
     }
 
@@ -230,8 +229,7 @@ public class ReportServiceImpl implements ReportService {
         Report report = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reporte no encontrado"));
 
-        report.setStatus(ReportStatus.REJECTED);
-        report.setRejectReason(rejectReason);
+        report.addStateChange(ReportStatus.REJECTED, rejectReason);
         repository.save(report);
     }
 
@@ -239,8 +237,7 @@ public class ReportServiceImpl implements ReportService {
     public void markAsResolved(String id) throws Exception {
         Report report = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reporte no encontrado"));
-        report.setStatus(ReportStatus.RESOLVED);
-        report.setRejectReason(null);
+        report.addStateChange(ReportStatus.RESOLVED, null);
         repository.save(report);
     }
 
@@ -248,11 +245,9 @@ public class ReportServiceImpl implements ReportService {
     public void sendToReview(String id) throws Exception {
         Report report = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reporte no encontrado"));
-        report.setStatus(ReportStatus.CREATED);
-        report.setRejectReason(null);
+        report.addStateChange(ReportStatus.CREATED, null);
         repository.save(report);
     }
-
 
     @Override
     public List<ReportDTO> findReportsNearLocation(LocationDTO location, double radiusInKm) throws Exception {
