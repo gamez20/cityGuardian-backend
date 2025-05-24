@@ -23,8 +23,8 @@ public class Report {
     private String description;
     private Boolean solved;
     private Boolean important;
-    private String categoryId; // Cambiado de Category a String
-    private ReportStatus status = ReportStatus.CREATED; // Valor por defecto
+    private Category category;
+    private ReportStatus status = ReportStatus.CREATED;
     private LocalDateTime creationDate;
     private List<String> comments;
     private int priority;
@@ -37,15 +37,15 @@ public class Report {
 
     @Builder
     public Report(String id, String title, String description, Boolean solved,
-                  Boolean important, String categoryId, ReportStatus status,
-                  LocalDateTime creationDate, List<String> comments, int priority,
-                  List<String> imageUrls, String userId, Location location, List<ReportStateHistory> stateHistory) {
+            Boolean important, Category category, ReportStatus status,
+            LocalDateTime creationDate, List<String> comments, int priority,
+            List<String> imageUrls, String userId, Location location) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.solved = solved;
         this.important = important;
-        this.categoryId = categoryId;
+        this.category = category;
         this.status = status;
         this.creationDate = creationDate;
         this.comments = comments;
@@ -190,12 +190,12 @@ public class Report {
         this.rejectReason = rejectReason;
     }
 
-    public String getCategoryId() {
-        return categoryId;
+    public Category getCategory() {
+        return category;
     }
 
-    public void setCategoryId(String categoryId) {
-        this.categoryId = categoryId;
+    public void setCategory(Category category) {
+        this.category = category;
     }
 
     public Location getLocation() {

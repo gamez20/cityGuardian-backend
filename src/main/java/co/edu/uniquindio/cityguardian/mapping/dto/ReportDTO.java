@@ -12,7 +12,7 @@ public record ReportDTO(
     String description,
     Boolean solved,
     Boolean important,
-    String categoryId,
+    CategoryDTO category,
     ReportStatus status,
     LocalDateTime creationDate,
     List<String> comments,

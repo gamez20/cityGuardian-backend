@@ -25,8 +25,13 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<MessageDTO<List<CategoryDTO>>> getAllCategories() {
-        return ResponseEntity.ok(new MessageDTO<>(false, categoryService.getAllCategories()));
+    public ResponseEntity<?> getAllCategories() {
+        try {
+            return ResponseEntity.ok(categoryService.getAllCategories());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageDTO<>(true, e.getMessage()));
+        }
     }
 
     @GetMapping("/{id}")
