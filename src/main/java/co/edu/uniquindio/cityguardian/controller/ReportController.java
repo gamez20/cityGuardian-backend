@@ -1,15 +1,20 @@
 package co.edu.uniquindio.cityguardian.controller;
 
 
+import co.edu.uniquindio.cityguardian.dto.ImagenDTO;
 import co.edu.uniquindio.cityguardian.mapping.dto.*;
 import co.edu.uniquindio.cityguardian.services.ReportService;
+import co.edu.uniquindio.cityguardian.services.ImagenService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,14 +24,26 @@ public class ReportController {
     @Autowired
     private ReportService reportService;
 
+    @Autowired
+    private ImagenService imagenService;
+
     @PostMapping("/filter")
     public List<ReportDto> filterReports(@RequestBody  FilterReportDto filterReportDto) throws Exception{
         return reportService.filterReports(filterReportDto);
     }
 
-    @PostMapping
-    public ResponseEntity<MessageDTO<String>> createNewReport(@Valid @RequestBody CreateReportDto reportDto) throws Exception {
-        reportService.createNewReport(reportDto);
+    @PostMapping("/create")
+    public ResponseEntity<MessageDTO<String>> createNewReport(
+            @Valid @RequestPart("report") CreateReportDto reportDto,
+            @RequestPart(value = "imagenes", required = false) List<MultipartFile> imagenes) throws Exception {
+        
+        List<String> imageUrls = new ArrayList<>();
+        if (imagenes != null && !imagenes.isEmpty()) {
+            List<ImagenDTO> imageDTOs = imagenService.subirImagenes(imagenes);
+            imageUrls = imageDTOs.stream().map(ImagenDTO::getUrl).collect(Collectors.toList());
+        }
+        
+        reportService.createNewReport(reportDto, imageUrls);
         return ResponseEntity.status(201).body(new MessageDTO<>(false, "Su reporte ha sido creado exitosamente"));
     }
 

@@ -33,7 +33,7 @@ public class ReportServiceImpl implements ReportService {
 
 
     @Override
-    public void createNewReport(CreateReportDto reportDto) throws Exception {
+    public void createNewReport(CreateReportDto reportDto, List<String> imageUrls) throws Exception {
         Report report = reportMapper.toDocument(reportDto);
         repository.save(report);
 
