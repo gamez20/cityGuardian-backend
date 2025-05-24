@@ -10,6 +10,8 @@ import co.edu.uniquindio.cityguardian.dto.ImagenDTO;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -26,6 +28,18 @@ public class ImagenServiceImpl implements ImagenService {
         fos.write(imagen.getBytes());
         fos.close();
         return file;
+    }
+
+    @Override
+    public List<ImagenDTO> subirImagenes(List<MultipartFile> imagenes) throws Exception {
+        List<ImagenDTO> imagenesDTOS = new ArrayList<>();
+
+        for (MultipartFile imagen : imagenes) {
+            ImagenDTO imagenDTO = subirImagen(imagen);
+            imagenesDTOS.add(imagenDTO);
+        }
+
+        return imagenesDTOS;
     }
 
     @Override

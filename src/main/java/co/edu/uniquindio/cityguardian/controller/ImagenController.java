@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/imagenes")
 public class ImagenController {
@@ -17,9 +19,9 @@ public class ImagenController {
     }
 
     @PostMapping("/subir")
-    public ResponseEntity<ImagenDTO> subirImagen(@RequestPart("imagen") MultipartFile imagen) {
+    public ResponseEntity<List<ImagenDTO>> subirImagenes(@RequestPart("imagenes") List<MultipartFile> imagenes) {
         try {
-            return ResponseEntity.ok(imagenService.subirImagen(imagen));
+            return ResponseEntity.ok(imagenService.subirImagenes(imagenes));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
