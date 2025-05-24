@@ -6,6 +6,7 @@ import co.edu.uniquindio.cityguardian.mapping.dto.MessageDTO;
 import co.edu.uniquindio.cityguardian.mapping.dto.UserDto;
 import co.edu.uniquindio.cityguardian.model.dto.AuthResponseDTO;
 import co.edu.uniquindio.cityguardian.model.dto.LoginRequest;
+import co.edu.uniquindio.cityguardian.model.dto.VerificationCodeRequest;
 import co.edu.uniquindio.cityguardian.services.UserService;
 import co.edu.uniquindio.cityguardian.utils.TokenUtils;
 import jakarta.validation.Valid;
@@ -56,6 +57,21 @@ public class UserController {
                 throw new AuthenticationException("Usuario sin email registrado");
             }
             return userService.sendVerificationCode(email);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageDTO<>(true, e.getMessage()));
+        }
+    }
+
+    @PostMapping("/verifyCode")
+    public ResponseEntity<MessageDTO<String>> verifyCode(@Valid @RequestBody VerificationCodeRequest request)
+            throws Exception {
+        try {
+            String email = TokenUtils.getEmailFromToken();
+            if (email == null) {
+                throw new AuthenticationException("Usuario sin email registrado");
+            }
+            return userService.verifyCode(email, request.code());
         } catch (Exception e) {
             return ResponseEntity.badRequest()
                     .body(new MessageDTO<>(true, e.getMessage()));

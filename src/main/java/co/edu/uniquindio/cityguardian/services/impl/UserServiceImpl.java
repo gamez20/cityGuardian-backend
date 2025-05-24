@@ -24,7 +24,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-
 import javax.naming.AuthenticationException;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -33,15 +32,15 @@ import java.util.*;
 public class UserServiceImpl implements UserService {
 
     @Autowired
-    private  UserRepository repository;
+    private UserRepository repository;
     @Autowired
-    private  UserMapper userMapper;
+    private UserMapper userMapper;
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
-    private  MongoTemplate mongoTemplate;
+    private MongoTemplate mongoTemplate;
     @Autowired
-    private  PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
     @Autowired
     private JWTUtils jwtUtils;
     @Autowired
@@ -49,11 +48,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public AuthResponseDTO login(LoginRequest loginRequest) throws Exception {
-        if (!emailExist(loginRequest.email())){
+        if (!emailExist(loginRequest.email())) {
             throw new AuthenticationException("El email no existe");
         }
         User user = repository.findByEmail(loginRequest.email())
-        .orElseThrow(() -> new AuthenticationException("El usuario no existe"));
+                .orElseThrow(() -> new AuthenticationException("El usuario no existe"));
 
         if (!passwordEncoder.matches(loginRequest.password(), user.getPassword())) {
             throw new Exception("Credenciales inválidas");
@@ -63,7 +62,6 @@ public class UserServiceImpl implements UserService {
         claims.put("email", user.getEmail());
         claims.put("role", user.getRole().name());
 
-
         String token = jwtUtils.generateToken(user.getId(), claims);
 
         UserDto userDto = userMapper.toUserDto(user);
@@ -72,9 +70,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void createNewUser(CreateUserDto userDto)  throws Exception {
+    public void createNewUser(CreateUserDto userDto) throws Exception {
 
-        if(emailExist(userDto.email())){
+        if (emailExist(userDto.email())) {
             throw new RepeatedElementException("El email ya está registrado");
         }
 
@@ -104,7 +102,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(String id) throws Exception {
         Optional<User> reportOptional = repository.findById(id);
-        if (reportOptional.isEmpty()){
+        if (reportOptional.isEmpty()) {
             throw new RuntimeException("Usuario no encontrado");
         }
         repository.deleteById(id);
@@ -113,7 +111,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getUserById(String id) throws Exception {
         Optional<User> optionalUser = repository.findById(id);
-        if (optionalUser.isEmpty()){
+        if (optionalUser.isEmpty()) {
             throw new RuntimeException("Usuario no encontrado");
         }
         return userMapper.toUserDto(optionalUser.get());
@@ -143,7 +141,6 @@ public class UserServiceImpl implements UserService {
             EmailDTO emailDTO = getEmailDTO(user, verificationCode);
             emailService.enviarEmail(emailDTO);
 
-
             return ResponseEntity.ok(new MessageDTO<>(false, "Código de verificación enviado exitosamente"));
         } catch (Exception e) {
             return ResponseEntity.badRequest()
@@ -157,13 +154,44 @@ public class UserServiceImpl implements UserService {
         emailDTO.setAsunto("\uD83D\uDD10 Verifica tu cuenta en CityGuardian");
         emailDTO.setCuerpo(
                 "<p>Hola, " + user.getName() + "</p>" +
-                "<p>Gracias por registrarte en <strong>CityGuardian</strong>, la plataforma para reportar incidentes de inseguridad en tu ciudad y mantenerte informado.</p>" +
-                "<p>Para completar la verificación de tu cuenta, ingresa el siguiente código en el sitio web:</p>" +
-                "<h1 style='font-size: 28px; font-weight: bold;'>" + verificationCode + "</h1>" +
-                "<p>Este código expirará en 15 minutos.</p>" +
-                "<p>Gracias por ayudarnos a construir ciudades más seguras.<br><strong>– El equipo de CityGuardian</strong></p>"
-        );
+                        "<p>Gracias por registrarte en <strong>CityGuardian</strong>, la plataforma para reportar incidentes de inseguridad en tu ciudad y mantenerte informado.</p>"
+                        +
+                        "<p>Para completar la verificación de tu cuenta, ingresa el siguiente código en el sitio web:</p>"
+                        +
+                        "<h1 style='font-size: 28px; font-weight: bold;'>" + verificationCode + "</h1>" +
+                        "<p>Este código expirará en 15 minutos.</p>" +
+                        "<p>Gracias por ayudarnos a construir ciudades más seguras.<br><strong>– El equipo de CityGuardian</strong></p>");
         emailDTO.setDestinatario(user.getEmail());
         return emailDTO;
+    }
+
+    @Override
+    public ResponseEntity<MessageDTO<String>> verifyCode(String email, String code) throws Exception {
+        try {
+            User user = repository.findByEmail(email)
+                    .orElseThrow(() -> new AuthenticationException("Usuario no encontrado"));
+
+            if (user.getVerificationCode() == null) {
+                throw new AuthenticationException("No hay código de verificación pendiente");
+            }
+
+            if (user.getVerificationCodeExpiry().isBefore(LocalDateTime.now())) {
+                throw new AuthenticationException("El código de verificación ha expirado");
+            }
+
+            if (!user.getVerificationCode().equals(code)) {
+                throw new AuthenticationException("Código de verificación inválido");
+            }
+
+            user.setVerificationCode(null);
+            user.setVerificationCodeExpiry(null);
+            user.setIsActive(true);
+            repository.save(user);
+
+            return ResponseEntity.ok(new MessageDTO<>(false, "Código verificado exitosamente"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageDTO<>(true, e.getMessage()));
+        }
     }
 }

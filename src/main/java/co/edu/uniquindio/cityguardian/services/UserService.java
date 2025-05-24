@@ -19,4 +19,5 @@ public interface UserService {
     UserDto getUserById(String id) throws Exception;
     List<UserDto> getUsers();
     ResponseEntity<MessageDTO<String>> sendVerificationCode(String email) throws Exception;
+    ResponseEntity<MessageDTO<String>> verifyCode(String email, String code) throws Exception;
 }
