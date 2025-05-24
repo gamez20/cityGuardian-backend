@@ -2,16 +2,14 @@ package co.edu.uniquindio.cityguardian.model;
 
 // ...existing imports...
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
+@Data
 @Document("reports")
 @Getter
 @Setter
@@ -24,12 +22,14 @@ public class Report {
     private Boolean solved;
     private Boolean important;
     private String categoryId; // Cambiado de Category a String
-    private ReportStatus status;
+    private ReportStatus status = ReportStatus.CREATED; // Valor por defecto
     private LocalDateTime creationDate;
     private List<String> comments;
     private int priority;
     private List<String> imageUrls;
     private String userId;
+    @Field("reject_reason")
+    private String rejectReason;
 
     @Builder
     public Report(String id, String title, String description, Boolean solved,
@@ -149,4 +149,13 @@ public class Report {
     public void setImageUrls(List<String> imageUrls) {
         this.imageUrls = imageUrls;
     }
+
+    public String getRejectReason() {
+        return rejectReason;
+    }
+
+    public void setRejectReason(String rejectReason) {
+        this.rejectReason = rejectReason;
+    }
+
 }

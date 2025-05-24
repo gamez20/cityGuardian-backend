@@ -98,4 +98,50 @@ public class ReportController {
     public ResponseEntity<MessageDTO<List<Report>>> getReportsByCategory(@PathVariable String categoryId) {
         return ResponseEntity.ok(new MessageDTO<>(false, reportService.getReportsByCategory(categoryId)));
     }
+
+    @PatchMapping("/{id}/verify")
+    public ResponseEntity<MessageDTO<String>> verifyReport(@PathVariable String id) {
+        try {
+            reportService.markAsVerified(id);
+            return ResponseEntity.ok(new MessageDTO<>(false, "Reporte verificado exitosamente"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageDTO<>(true, e.getMessage()));
+        }
+    }
+
+    @PatchMapping("/{id}/reject")
+    public ResponseEntity<MessageDTO<String>> rejectReport(
+            @PathVariable String id,
+            @RequestParam String rejectReason) {
+        try {
+            reportService.markAsRejected(id, rejectReason);
+            return ResponseEntity.ok(new MessageDTO<>(false, "Reporte rechazado exitosamente"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageDTO<>(true, e.getMessage()));
+        }
+    }
+
+    @PatchMapping("/{id}/resolve")
+    public ResponseEntity<MessageDTO<String>> resolveReport(@PathVariable String id) {
+        try {
+            reportService.markAsResolved(id);
+            return ResponseEntity.ok(new MessageDTO<>(false, "Reporte marcado como resuelto"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageDTO<>(true, e.getMessage()));
+        }
+    }
+
+    @PatchMapping("/{id}/review")
+    public ResponseEntity<MessageDTO<String>> sendToReview(@PathVariable String id) {
+        try {
+            reportService.sendToReview(id);
+            return ResponseEntity.ok(new MessageDTO<>(false, "Reporte enviado a revisión"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageDTO<>(true, e.getMessage()));
+        }
+    }
 }

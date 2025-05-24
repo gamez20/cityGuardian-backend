@@ -23,6 +23,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import co.edu.uniquindio.cityguardian.model.Category;
+import co.edu.uniquindio.cityguardian.model.ReportStatus;
 
 import java.util.*;
 
@@ -196,6 +197,47 @@ public class ReportServiceImpl implements ReportService {
 
     public List<Report> getReportsByCategory(String categoryId) {
         return repository.findByCategoryId(categoryId);
+    }
+
+    @Override
+    public void markAsVerified(String id) throws Exception {
+        Report report = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reporte no encontrado"));
+        report.setStatus(ReportStatus.VERIFIED);
+        report.setRejectReason(null);
+        repository.save(report);
+    }
+
+    @Override
+    public void markAsRejected(String id, String rejectReason) throws Exception {
+        if (rejectReason == null || rejectReason.trim().isEmpty()) {
+            throw new IllegalArgumentException("El motivo de rechazo es obligatorio");
+        }
+
+        Report report = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reporte no encontrado"));
+
+        report.setStatus(ReportStatus.REJECTED);
+        report.setRejectReason(rejectReason);
+        repository.save(report);
+    }
+
+    @Override
+    public void markAsResolved(String id) throws Exception {
+        Report report = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reporte no encontrado"));
+        report.setStatus(ReportStatus.RESOLVED);
+        report.setRejectReason(null);
+        repository.save(report);
+    }
+
+    @Override
+    public void sendToReview(String id) throws Exception {
+        Report report = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reporte no encontrado"));
+        report.setStatus(ReportStatus.CREATED);
+        report.setRejectReason(null);
+        repository.save(report);
     }
 
 }
