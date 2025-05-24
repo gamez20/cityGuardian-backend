@@ -4,7 +4,7 @@ import co.edu.uniquindio.cityguardian.dto.EmailDTO;
 import co.edu.uniquindio.cityguardian.dto.UserReportsDTO;
 import co.edu.uniquindio.cityguardian.exceptions.RepeatedElementException;
 import co.edu.uniquindio.cityguardian.mapping.dto.CreateUserDto;
-import co.edu.uniquindio.cityguardian.mapping.dto.EditUserDto;
+import co.edu.uniquindio.cityguardian.model.dto.EditUserRequest;
 import co.edu.uniquindio.cityguardian.mapping.dto.MessageDTO;
 import co.edu.uniquindio.cityguardian.mapping.dto.ReportDTO;
 import co.edu.uniquindio.cityguardian.mapping.dto.UserDto;
@@ -17,6 +17,7 @@ import co.edu.uniquindio.cityguardian.security.JWTUtils;
 import co.edu.uniquindio.cityguardian.services.EmailService;
 import co.edu.uniquindio.cityguardian.services.ReportService;
 import co.edu.uniquindio.cityguardian.services.UserService;
+import co.edu.uniquindio.cityguardian.utils.TokenUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,8 +91,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto updateUser(EditUserDto updatedUser) throws Exception {
-        Optional<User> optionalUser = repository.findByEmail(updatedUser.email());
+    public UserDto updateUser(EditUserRequest updatedUser) throws Exception {
+        String email = TokenUtils.getEmailFromToken();
+        if (email == null) {
+            throw new AuthenticationException("Usuario sin email registrado");
+        }
+
+        Optional<User> optionalUser = repository.findByEmail(email);
         if (optionalUser.isEmpty()) {
             throw new RuntimeException("Usuario no encontrado");
         }

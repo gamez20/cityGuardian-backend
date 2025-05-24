@@ -1,10 +1,9 @@
 package co.edu.uniquindio.cityguardian.controller;
 
 import co.edu.uniquindio.cityguardian.dto.UserReportsDTO;
-import co.edu.uniquindio.cityguardian.mapping.dto.EditUserDto;
+import co.edu.uniquindio.cityguardian.model.dto.EditUserRequest;
 import co.edu.uniquindio.cityguardian.mapping.dto.MessageDTO;
 import co.edu.uniquindio.cityguardian.mapping.dto.UserDto;
-import co.edu.uniquindio.cityguardian.model.dto.ChangePasswordRequest;
 import co.edu.uniquindio.cityguardian.model.dto.VerificationCodeRequest;
 import co.edu.uniquindio.cityguardian.services.UserService;
 import co.edu.uniquindio.cityguardian.utils.TokenUtils;
@@ -25,8 +24,8 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PatchMapping
-    public UserDto edit(@Valid @RequestBody EditUserDto account) throws Exception {
+    @PatchMapping("/update")
+    public UserDto edit(@Valid @RequestBody EditUserRequest account) throws Exception {
         return userService.updateUser(account);
     }
 
