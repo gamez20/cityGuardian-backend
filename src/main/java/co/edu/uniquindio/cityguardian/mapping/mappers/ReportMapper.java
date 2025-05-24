@@ -1,7 +1,7 @@
 package co.edu.uniquindio.cityguardian.mapping.mappers;
 
 import co.edu.uniquindio.cityguardian.mapping.dto.CreateReportDto;
-import co.edu.uniquindio.cityguardian.mapping.dto.ReportDto;
+import co.edu.uniquindio.cityguardian.mapping.dto.ReportDTO;
 import co.edu.uniquindio.cityguardian.model.Report;
 import co.edu.uniquindio.cityguardian.model.ReportStatus;
 import co.edu.uniquindio.cityguardian.model.Category;
@@ -24,7 +24,7 @@ public interface ReportMapper {
 
     CreateReportDto toDTO(Report report);
 
-    ReportDto toReportDto(Report report);
+    ReportDTO toReportDto(Report report);
 
     default String map(ObjectId value) {
         return value != null ? value.toString() : null;

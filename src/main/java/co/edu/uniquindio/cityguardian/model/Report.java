@@ -23,18 +23,19 @@ public class Report {
     private String description;
     private Boolean solved;
     private Boolean important;
-    private String categoryId;  // Cambiado de Category a String
+    private String categoryId; // Cambiado de Category a String
     private ReportStatus status;
     private LocalDateTime creationDate;
     private List<String> comments;
     private int priority;
     private List<String> imageUrls;
+    private String userId;
 
     @Builder
-    public Report(String id, String title, String description, Boolean solved, 
-                 Boolean important, String categoryId, ReportStatus status, 
-                 LocalDateTime creationDate, List<String> comments, int priority,
-                 List<String> imageUrls) {
+    public Report(String id, String title, String description, Boolean solved,
+            Boolean important, String categoryId, ReportStatus status,
+            LocalDateTime creationDate, List<String> comments, int priority,
+            List<String> imageUrls, String userId) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -45,20 +46,21 @@ public class Report {
         this.creationDate = creationDate;
         this.comments = comments;
         this.priority = priority;
+        this.userId = userId;
         this.imageUrls = imageUrls; // Initialize to null or an empty list if needed
     }
 
+    // methods
+    public static void updateStatus(ReportStatus status) {
+    }
 
+    public static void assingPriority() {
+    }
 
-    //methods
-    public static void updateStatus(ReportStatus status){}
-    public static void assingPriority(){}
-    public static void viewHistory(){}
+    public static void viewHistory() {
+    }
 
-    //getters y setters
-
-
-
+    // getters y setters
 
     public Boolean getSolved() {
         return solved;
@@ -100,7 +102,6 @@ public class Report {
         this.description = description;
     }
 
-
     public ReportStatus getStatus() {
         return status;
     }
@@ -131,6 +132,14 @@ public class Report {
 
     public void setComments(List<String> comments) {
         this.comments = comments;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public List<String> getImageUrls() {

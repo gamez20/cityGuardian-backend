@@ -1,5 +1,6 @@
 package co.edu.uniquindio.cityguardian.services;
 
+import co.edu.uniquindio.cityguardian.dto.UserReportsDTO;
 import co.edu.uniquindio.cityguardian.mapping.dto.CreateUserDto;
 import co.edu.uniquindio.cityguardian.mapping.dto.EditUserDto;
 import co.edu.uniquindio.cityguardian.mapping.dto.MessageDTO;
@@ -20,4 +21,5 @@ public interface UserService {
     List<UserDto> getUsers();
     ResponseEntity<MessageDTO<String>> sendVerificationCode(String email) throws Exception;
     ResponseEntity<MessageDTO<String>> verifyCode(String email, String code) throws Exception;
+    UserReportsDTO getUserReports(String email) throws Exception;
 }

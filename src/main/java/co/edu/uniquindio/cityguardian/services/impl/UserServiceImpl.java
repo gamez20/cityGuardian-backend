@@ -1,10 +1,12 @@
 package co.edu.uniquindio.cityguardian.services.impl;
 
 import co.edu.uniquindio.cityguardian.dto.EmailDTO;
+import co.edu.uniquindio.cityguardian.dto.UserReportsDTO;
 import co.edu.uniquindio.cityguardian.exceptions.RepeatedElementException;
 import co.edu.uniquindio.cityguardian.mapping.dto.CreateUserDto;
 import co.edu.uniquindio.cityguardian.mapping.dto.EditUserDto;
 import co.edu.uniquindio.cityguardian.mapping.dto.MessageDTO;
+import co.edu.uniquindio.cityguardian.mapping.dto.ReportDTO;
 import co.edu.uniquindio.cityguardian.mapping.dto.UserDto;
 import co.edu.uniquindio.cityguardian.mapping.mappers.UserMapper;
 import co.edu.uniquindio.cityguardian.model.Report;
@@ -14,6 +16,7 @@ import co.edu.uniquindio.cityguardian.model.dto.LoginRequest;
 import co.edu.uniquindio.cityguardian.repository.UserRepository;
 import co.edu.uniquindio.cityguardian.security.JWTUtils;
 import co.edu.uniquindio.cityguardian.services.EmailService;
+import co.edu.uniquindio.cityguardian.services.ReportService;
 import co.edu.uniquindio.cityguardian.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +30,7 @@ import org.springframework.stereotype.Service;
 import javax.naming.AuthenticationException;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -45,6 +49,8 @@ public class UserServiceImpl implements UserService {
     private JWTUtils jwtUtils;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private ReportService reportService;
 
     @Override
     public AuthResponseDTO login(LoginRequest loginRequest) throws Exception {
@@ -193,5 +199,31 @@ public class UserServiceImpl implements UserService {
             return ResponseEntity.badRequest()
                     .body(new MessageDTO<>(true, e.getMessage()));
         }
+    }
+
+    @Override
+    public UserReportsDTO getUserReports(String email) throws Exception {
+        User user = repository.findByEmail(email)
+                .orElseThrow(() -> new AuthenticationException("Usuario no encontrado"));
+
+        List<ReportDTO> reports = new ArrayList<>();
+
+        if (user.getReportIds() != null && !user.getReportIds().isEmpty()) {
+            reports = user.getReportIds().stream()
+                    .map(reportId -> {
+                        try {
+                            return reportService.getReportById(reportId);
+                        } catch (Exception e) {
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+        }
+
+        return new UserReportsDTO(
+                user.getId(),
+                user.getName(),
+                reports);
     }
 }
