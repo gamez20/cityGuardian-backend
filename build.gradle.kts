@@ -4,8 +4,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("jvm") version "1.9.22"
     kotlin("plugin.spring") version "1.9.22"
-    kotlin("kapt") version "1.9.22" // Agrega esto
-
+    kotlin("kapt") version "1.9.22"
 }
 
 
@@ -50,10 +49,5 @@ dependencies {
     kapt("org.springframework.boot:spring-boot-configuration-processor")
     implementation("org.simplejavamail:simple-java-mail:8.6.3")
 
-}
-
-
-tasks.withType<Test> {
-    useJUnitPlatform()
 }
 
