@@ -4,6 +4,8 @@ import co.edu.uniquindio.cityguardian.dto.UserReportsDTO;
 import co.edu.uniquindio.cityguardian.model.dto.EditUserRequest;
 import co.edu.uniquindio.cityguardian.mapping.dto.MessageDTO;
 import co.edu.uniquindio.cityguardian.mapping.dto.UserDto;
+import co.edu.uniquindio.cityguardian.model.dto.SendCodeRequest;
+import co.edu.uniquindio.cityguardian.model.dto.VerificationCodeByEmailRequest;
 import co.edu.uniquindio.cityguardian.model.dto.VerificationCodeRequest;
 import co.edu.uniquindio.cityguardian.services.UserService;
 import co.edu.uniquindio.cityguardian.utils.TokenUtils;
@@ -43,6 +45,17 @@ public class UserController {
     @GetMapping("/buscar")
     public ResponseEntity<UserDto> buscarPorEmail(@RequestParam String email) {
         try {
+            UserDto usuario = userService.getUserByEmail(email);
+            return ResponseEntity.ok(usuario);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<UserDto> getProfile() {
+        try {
+            String email = TokenUtils.getEmailFromToken();
             UserDto usuario = userService.getUserByEmail(email);
             return ResponseEntity.ok(usuario);
         } catch (Exception e) {
