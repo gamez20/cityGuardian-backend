@@ -122,12 +122,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(String id) throws Exception {
-        Optional<User> reportOptional = repository.findById(id);
-        if (reportOptional.isEmpty()) {
-            throw new RuntimeException("Usuario no encontrado");
+    public void deleteUser(String email) throws Exception {
+        User user = repository.findByEmail(email)
+                .orElseThrow(() -> new AuthenticationException("Usuario no encontrado"));
+
+        if (user.getReportIds() != null && !user.getReportIds().isEmpty()) {
+            user.getReportIds().stream()
+                .forEach(reportId -> {
+                    try {
+                        reportService.deleteReport(reportId);
+                    } catch (Exception e) {
+                        throw new RuntimeException("Error al eliminar el reporte");
+                    }
+                });
         }
-        repository.deleteById(id);
+
+        repository.deleteByEmail(email);
     }
 
     @Override

@@ -27,14 +27,26 @@ public class UserController {
     private UserService userService;
 
     @PatchMapping("/update")
-    public UserDto edit(@Valid @RequestBody EditUserRequest account) throws Exception {
-        return userService.updateUser(account);
+    public ResponseEntity<MessageDTO<String>> edit(@Valid @RequestBody EditUserRequest account) throws Exception {
+        try {
+            userService.updateUser(account);
+            return ResponseEntity.ok(new MessageDTO<>(false,"Usuario Actualizado Correctamente"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageDTO<>(true, e.getMessage()));
+        }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<MessageDTO<String>> delete(@PathVariable String id) throws Exception {
-        userService.deleteUser(id);
-        return ResponseEntity.status(200).body(new MessageDTO<>(false, "Usuario eliminado exitosamente"));
+    @DeleteMapping("/delete")
+    public ResponseEntity<MessageDTO<String>> delete() throws Exception {
+        try {
+            String email = TokenUtils.getEmailFromToken();
+            userService.deleteUser(email);
+            return ResponseEntity.status(200).body(new MessageDTO<>(false, "Usuario eliminado exitosamente"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageDTO<>(true, e.getMessage()));
+        }
     }
 
     @GetMapping("/{id}")

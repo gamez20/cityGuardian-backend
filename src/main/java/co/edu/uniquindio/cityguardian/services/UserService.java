@@ -17,7 +17,7 @@ public interface UserService {
     AuthResponseDTO login (LoginRequest loginRequest) throws Exception;
     void createNewUser(CreateUserDto userDto) throws Exception;
     UserDto updateUser(EditUserRequest updatedUser) throws Exception;
-    void deleteUser(String id) throws Exception;
+    void deleteUser(String email) throws Exception;
     UserDto getUserById(String id) throws Exception;
     List<UserDto> getUsers();
     ResponseEntity<MessageDTO<String>> sendVerificationCode(String email) throws Exception;
