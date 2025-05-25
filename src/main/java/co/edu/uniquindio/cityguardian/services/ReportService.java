@@ -24,6 +24,7 @@ public interface ReportService {
     void markReportAsSolved(String id) throws Exception;
 
     void markReportAsImportant(String id) throws Exception;
+    void markReportAsNotImportant(String id) throws Exception;
 
     List<ReportDTO> filterReports(FilterReportDto filterReportDto) throws Exception;
 

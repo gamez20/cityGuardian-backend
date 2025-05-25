@@ -121,6 +121,13 @@ public class ReportController {
         return ResponseEntity.status(200).body(new MessageDTO<>(false, "Reporte marcado como importante"));
     }
 
+    @PutMapping("/{id}/NotImportant")
+    public ResponseEntity<MessageDTO<String>> markReportAsNotImportant(@PathVariable String id) throws Exception {
+        reportService.markReportAsNotImportant(id);
+        return ResponseEntity.status(200).body(new MessageDTO<>(false, "Reporte marcado como importante"));
+    }
+
+
     @GetMapping
     public List<ReportDTO> getReports() {
         return reportService.getReports();

@@ -158,6 +158,18 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
+    public void markReportAsNotImportant(String id) throws Exception {
+        Optional<Report> optionalReport = repository.findById(id);
+        if (optionalReport.isEmpty()) {
+            throw new RuntimeException("Reporte no encontrado");
+        }
+        Report report = optionalReport.get();
+        report.setImportant(false);
+        repository.save(report);
+
+    }
+
+    @Override
     public List<ReportDTO> filterReports(FilterReportDto filterReportDto) throws Exception {
 
         Query query = new Query();
