@@ -26,7 +26,8 @@ public class Report {
     private Category category;
     private ReportStatus status = ReportStatus.CREATED;
     private LocalDateTime creationDate;
-    private List<String> comments;
+    @Field("comments")
+    private List<Comment> comments = new ArrayList<>();
     private int priority;
     private List<String> imageUrls;
     private String userId;
@@ -37,9 +38,9 @@ public class Report {
 
     @Builder
     public Report(String id, String title, String description, Boolean solved,
-            Boolean important, Category category, ReportStatus status,
-            LocalDateTime creationDate, List<String> comments, int priority,
-            List<String> imageUrls, String userId, Location location) {
+                  Boolean important, Category category, ReportStatus status,
+                  LocalDateTime creationDate, List<Comment> comments, int priority,
+                  List<String> imageUrls, String userId, Location location) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -48,13 +49,13 @@ public class Report {
         this.category = category;
         this.status = status;
         this.creationDate = creationDate;
-        this.comments = comments;
+        this.comments = comments != null ? new ArrayList<>(comments) : new ArrayList<>();
         this.priority = priority;
         this.userId = userId;
         this.imageUrls = imageUrls;
         this.location = location;
-        this.stateHistory = stateHistory != null ? new ArrayList<>(stateHistory) : new ArrayList<>();
-        if (status != null && (this.stateHistory == null || this.stateHistory.isEmpty())) {
+        this.stateHistory = new ArrayList<>();
+        if (status != null) {
             this.stateHistory.add(new ReportStateHistory(status, creationDate != null ? creationDate : LocalDateTime.now(), null));
         }
     }
@@ -158,11 +159,14 @@ public class Report {
         this.priority = priority;
     }
 
-    public List<String> getComments() {
+    public List<Comment> getComments() {
+        if (comments == null) {
+            comments = new ArrayList<>();
+        }
         return comments;
     }
 
-    public void setComments(List<String> comments) {
+    public void setComments(List<Comment> comments) {
         this.comments = comments;
     }
 

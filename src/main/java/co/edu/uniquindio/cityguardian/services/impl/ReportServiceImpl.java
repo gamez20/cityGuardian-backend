@@ -2,15 +2,14 @@ package co.edu.uniquindio.cityguardian.services.impl;
 
 import co.edu.uniquindio.cityguardian.exceptions.RepeatedElementException;
 import co.edu.uniquindio.cityguardian.mapping.dto.CommentDto;
+import co.edu.uniquindio.cityguardian.model.*;
 import co.edu.uniquindio.cityguardian.model.dto.CreateReportRequest;
 import co.edu.uniquindio.cityguardian.model.dto.LocationDTO;
 import co.edu.uniquindio.cityguardian.mapping.dto.EditReportDto;
 import co.edu.uniquindio.cityguardian.mapping.dto.FilterReportDto;
 import co.edu.uniquindio.cityguardian.mapping.dto.ReportDTO;
 import co.edu.uniquindio.cityguardian.mapping.mappers.ReportMapper;
-import co.edu.uniquindio.cityguardian.model.Report;
 import co.edu.uniquindio.cityguardian.repository.CategoryRepository;
-import co.edu.uniquindio.cityguardian.model.User;
 import co.edu.uniquindio.cityguardian.repository.ReportRepository;
 import co.edu.uniquindio.cityguardian.repository.UserRepository;
 import co.edu.uniquindio.cityguardian.services.ReportService;
@@ -24,8 +23,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
-import co.edu.uniquindio.cityguardian.model.Category;
-import co.edu.uniquindio.cityguardian.model.ReportStatus;
+import org.threeten.bp.LocalDateTime;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -203,20 +201,28 @@ public class ReportServiceImpl implements ReportService {
         return repository.findById(id).isPresent();
     }
 
-    public void addComment(CommentDto commentDto, String id) throws Exception {
-        if (commentDto == null || commentDto.description() == null || commentDto.description().trim().isEmpty()) {
-            throw new IllegalArgumentException("El comentario no puede estar vacío");
-        }
+    @Override
+    public void addComment(String message, String reportId) throws Exception {
+        Report report = repository.findById(reportId)
+                .orElseThrow(() -> new RuntimeException("No existe el reporte"));
 
-        Report report = repository.findById(id)
-                .orElseThrow(() -> new RepeatedElementException("No se puede agregar el comentario, porque no existe el reporte"));
+        String email = TokenUtils.getEmailFromToken();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AuthenticationException("Usuario no encontrado"));
+
+        // Crear comentario usando el mapper
+        Comment comment = new Comment();
+        comment.setId(UUID.randomUUID().toString());
+        comment.setMessage(message);
+        comment.setUserId(user.getId());
+        comment.setFirstName(user.getName());
+        comment.setLastName(user.getLastName());
+        comment.setDate(LocalDateTime.now().toString());
 
         if (report.getComments() == null) {
             report.setComments(new ArrayList<>());
         }
-
-        String commentText = commentDto.description().trim();
-        report.getComments().add(commentText);
+        report.getComments().add(comment);
         repository.save(report);
     }
 

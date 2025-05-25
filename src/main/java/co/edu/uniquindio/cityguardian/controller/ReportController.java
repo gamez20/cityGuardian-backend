@@ -134,12 +134,17 @@ public class ReportController {
     }
 
     @PostMapping("/{id}/comments")
-    public ResponseEntity<MessageDTO<String>> addComment(@Valid @RequestBody CommentDto commentDto,
-            @PathVariable String id) throws Exception {
-        reportService.addComment(commentDto, id);
-        return ResponseEntity.status(200).body(new MessageDTO<>(false, "Comentario agregado correctamente"));
+    public ResponseEntity<MessageDTO<String>> addComment(
+            @PathVariable String id,
+            @Valid @RequestBody CreateCommentDto commentDto) throws Exception {
+        try {
+            reportService.addComment(commentDto.message(), id);
+            return ResponseEntity.ok(new MessageDTO<>(false, "Comentario agregado exitosamente"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageDTO<>(true, e.getMessage()));
+        }
     }
-
     @GetMapping("/category/{categoryId}")
     public ResponseEntity<MessageDTO<List<Report>>> getReportsByCategory(@PathVariable String categoryId) {
         return ResponseEntity.ok(new MessageDTO<>(false, reportService.getReportsByCategory(categoryId)));

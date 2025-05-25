@@ -13,35 +13,73 @@ import java.time.LocalDateTime;
 @Document
 @Getter
 @Setter
-@NoArgsConstructor
 public class Comment {
-
     @Id
     private String id;
-    private String description;
+    private String userId;
+    private String firstName;
+    private String lastName;
+    private String date;
+    private String message;
 
-    private LocalDateTime date;
+    // Constructor
+    public Comment() {}
 
-    @Builder
-    public Comment(String id, String description, LocalDateTime date) {
+    public Comment(String id, String userId, String firstName, String lastName, String date, String message) {
         this.id = id;
-        this.description = description;
+        this.userId = userId;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.date = date;
+        this.message = message;
     }
 
-    public String getDescription() {
-        return description;
+    // Getters y Setters
+    public String getId() {
+        return id;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public LocalDateTime getDate() {
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getDate() {
         return date;
     }
 
-    public void setDate(LocalDateTime date) {
+    public void setDate(String date) {
         this.date = date;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

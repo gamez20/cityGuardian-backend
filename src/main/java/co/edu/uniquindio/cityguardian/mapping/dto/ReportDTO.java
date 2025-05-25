@@ -15,7 +15,7 @@ public record ReportDTO(
     CategoryDTO category,
     ReportStatus status,
     LocalDateTime creationDate,
-    List<String> comments,
+    List<CommentDto> comments,
     int priority,
     String userId,
     List<String> imageUrls,

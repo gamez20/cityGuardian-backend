@@ -28,7 +28,8 @@ public interface ReportService {
 
     List<ReportDTO> filterReports(FilterReportDto filterReportDto) throws Exception;
 
-    void addComment(CommentDto commentDto, String id) throws Exception;
+    void addComment(String message, String reportId) throws Exception;
+
 
     List<Report> getReportsByCategory(String categoryId);
 
