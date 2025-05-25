@@ -5,6 +5,7 @@ import co.edu.uniquindio.cityguardian.mapping.dto.MessageDTO;
 import co.edu.uniquindio.cityguardian.services.FcmTokenService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,7 +14,8 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class FcmTokenController {
 
-    private final FcmTokenService fcmTokenService;
+    @Autowired
+    private FcmTokenService fcmTokenService;
 
     @PostMapping("/token")
     public ResponseEntity<MessageDTO<String>> saveToken(
