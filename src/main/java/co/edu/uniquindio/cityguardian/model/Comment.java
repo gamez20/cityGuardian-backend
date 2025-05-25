@@ -9,10 +9,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
 @Document
 @Getter
 @Setter
+
 public class Comment {
     @Id
     private String id;
@@ -25,6 +25,7 @@ public class Comment {
     // Constructor
     public Comment() {}
 
+    @Builder
     public Comment(String id, String userId, String firstName, String lastName, String date, String message) {
         this.id = id;
         this.userId = userId;

@@ -203,6 +203,10 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public void addComment(String message, String reportId) throws Exception {
+        if (message == null || message.trim().isEmpty()) {
+            throw new IllegalArgumentException("El mensaje no puede estar vacío");
+        }
+
         Report report = repository.findById(reportId)
                 .orElseThrow(() -> new RuntimeException("No existe el reporte"));
 
@@ -210,10 +214,9 @@ public class ReportServiceImpl implements ReportService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new AuthenticationException("Usuario no encontrado"));
 
-        // Crear comentario usando el mapper
         Comment comment = new Comment();
         comment.setId(UUID.randomUUID().toString());
-        comment.setMessage(message);
+        comment.setMessage(message.trim());
         comment.setUserId(user.getId());
         comment.setFirstName(user.getName());
         comment.setLastName(user.getLastName());
@@ -222,10 +225,10 @@ public class ReportServiceImpl implements ReportService {
         if (report.getComments() == null) {
             report.setComments(new ArrayList<>());
         }
+
         report.getComments().add(comment);
         repository.save(report);
     }
-
     public List<Report> getReportsByCategory(String categoryId) {
         return repository.findByCategoryId(categoryId);
     }

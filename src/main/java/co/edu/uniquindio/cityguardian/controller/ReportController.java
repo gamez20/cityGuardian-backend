@@ -136,7 +136,7 @@ public class ReportController {
     @PostMapping("/{id}/comments")
     public ResponseEntity<MessageDTO<String>> addComment(
             @PathVariable String id,
-            @Valid @RequestBody CreateCommentDto commentDto) throws Exception {
+            @RequestBody CreateCommentDto commentDto) throws Exception {
         try {
             reportService.addComment(commentDto.message(), id);
             return ResponseEntity.ok(new MessageDTO<>(false, "Comentario agregado exitosamente"));
