@@ -14,5 +14,5 @@ public interface ReportRepository extends MongoRepository<Report, String> {
 
     @NotNull Optional<Report> findById(@NotNull String id);
 
-
+    List<Report> findByCategoryId(String categoryId);
 }

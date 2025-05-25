@@ -1,16 +1,10 @@
 package co.edu.uniquindio.cityguardian.mapping.mappers;
 import co.edu.uniquindio.cityguardian.mapping.dto.CreateUserDto;
-import co.edu.uniquindio.cityguardian.mapping.dto.EditUserDto;
 import co.edu.uniquindio.cityguardian.mapping.dto.UserDto;
 import co.edu.uniquindio.cityguardian.model.User;
-import co.edu.uniquindio.cityguardian.model.UserRol;
 import org.bson.types.ObjectId;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {

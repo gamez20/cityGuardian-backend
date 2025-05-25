@@ -1,46 +1,33 @@
 package co.edu.uniquindio.cityguardian.model;
 
+import lombok.*;
+
+@Getter
+@Setter
+@NoArgsConstructor
 public class Location {
-    //var
-    private String id;
-    private Double latitude;
-    private Double longitude;
+    private double latitude;
+    private double longitude;
 
-    //builder
-
-    public Location(String id, Double latitude, Double longitude) {
-        this.id = id;
+    @Builder
+    public Location(double latitude, double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
     }
 
-    //empty builder
-    public Location() {}
-
-    //getter y setter
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public Double getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(Double latitude) {
-        this.latitude = latitude;
-    }
-
-    public Double getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(Double longitude) {
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
 }
-

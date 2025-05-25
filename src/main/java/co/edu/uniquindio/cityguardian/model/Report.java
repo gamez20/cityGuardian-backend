@@ -1,69 +1,98 @@
 package co.edu.uniquindio.cityguardian.model;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
+// ...existing imports...
+
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.ArrayList;
 
+@Data
 @Document("reports")
 @Getter
 @Setter
 @NoArgsConstructor
 public class Report {
-
-    //var
     @Id
     private String id;
     private String title;
-    private Category category;
     private String description;
     private Boolean solved;
     private Boolean important;
-    private String locationIdFk;
-    private ReportStatus status;
+    private Category category;
+    private ReportStatus status = ReportStatus.CREATED;
     private LocalDateTime creationDate;
     private List<String> comments;
     private int priority;
+    private List<String> imageUrls;
+    private String userId;
+    @Field("reject_reason")
+    private String rejectReason;
+    private Location location;
+    private List<ReportStateHistory> stateHistory = new ArrayList<>();
 
-    //builder
     @Builder
-    public Report(String id, String title, Category category, String description, Boolean solved, Boolean important,String locationIdFk, ReportStatus status, LocalDateTime creationDate, List<String> comments, int priority) {
+    public Report(String id, String title, String description, Boolean solved,
+            Boolean important, Category category, ReportStatus status,
+            LocalDateTime creationDate, List<String> comments, int priority,
+            List<String> imageUrls, String userId, Location location) {
         this.id = id;
         this.title = title;
-        this.category = category;
         this.description = description;
         this.solved = solved;
         this.important = important;
-        this.locationIdFk = locationIdFk;
+        this.category = category;
         this.status = status;
         this.creationDate = creationDate;
         this.comments = comments;
         this.priority = priority;
+        this.userId = userId;
+        this.imageUrls = imageUrls;
+        this.location = location;
+        this.stateHistory = stateHistory != null ? new ArrayList<>(stateHistory) : new ArrayList<>();
+        if (status != null && (this.stateHistory == null || this.stateHistory.isEmpty())) {
+            this.stateHistory.add(new ReportStateHistory(status, creationDate != null ? creationDate : LocalDateTime.now(), null));
+        }
     }
 
-
-
-    //methods
-    public static void updateStatus(ReportStatus status){}
-    public static void assingPriority(){}
-    public static void viewHistory(){}
-
-    //getters y setters
-
-
-    public Category getCategory() {
-        return category;
+    // methods
+    public static void updateStatus(ReportStatus status) {
     }
 
-    public void setCategory(Category category) {
-        this.category = category;
+    public static void assingPriority() {
     }
+
+    public static void viewHistory() {
+    }
+
+    public void addStateChange(ReportStatus newStatus, String reason) {
+        if (this.stateHistory == null) {
+            this.stateHistory = new ArrayList<>();
+        }
+
+        // Crear nuevo estado
+        ReportStateHistory newStateHistory = new ReportStateHistory(newStatus, LocalDateTime.now(), reason);
+
+        // Agregar a la lista existente
+        this.stateHistory.add(newStateHistory);
+
+        // Actualizar estado actual
+        this.status = newStatus;
+
+        // Si el nuevo estado es REJECTED, agregar la razón
+        if (ReportStatus.REJECTED.equals(newStatus)) {
+            this.rejectReason = reason;
+        }
+        // Si el estado anterior era REJECTED y cambia a otro estado, limpiar la razón
+        else if (this.rejectReason != null && !ReportStatus.REJECTED.equals(newStatus)) {
+            this.rejectReason = null;
+        }
+    }
+    // getters y setters
 
     public Boolean getSolved() {
         return solved;
@@ -105,14 +134,6 @@ public class Report {
         this.description = description;
     }
 
-    public String getLocationIdFk() {
-        return locationIdFk;
-    }
-
-    public void setLocationIdFk(String locationIdFk) {
-        this.locationIdFk = locationIdFk;
-    }
-
     public ReportStatus getStatus() {
         return status;
     }
@@ -143,5 +164,53 @@ public class Report {
 
     public void setComments(List<String> comments) {
         this.comments = comments;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public List<String> getImageUrls() {
+        return imageUrls;
+    }
+
+    public void setImageUrls(List<String> imageUrls) {
+        this.imageUrls = imageUrls;
+    }
+
+    public String getRejectReason() {
+        return rejectReason;
+    }
+
+    public void setRejectReason(String rejectReason) {
+        this.rejectReason = rejectReason;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    public List<ReportStateHistory> getStateHistory() {
+        return stateHistory;
+    }
+
+    public void setStateHistory(List<ReportStateHistory> stateHistory) {
+        this.stateHistory = stateHistory;
     }
 }

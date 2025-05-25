@@ -1,22 +1,24 @@
 package co.edu.uniquindio.cityguardian.services.impl;
 
 import co.edu.uniquindio.cityguardian.dto.EmailDTO;
+import co.edu.uniquindio.cityguardian.dto.UserReportsDTO;
 import co.edu.uniquindio.cityguardian.exceptions.RepeatedElementException;
 import co.edu.uniquindio.cityguardian.mapping.dto.CreateUserDto;
-import co.edu.uniquindio.cityguardian.mapping.dto.EditUserDto;
+import co.edu.uniquindio.cityguardian.model.dto.EditUserRequest;
 import co.edu.uniquindio.cityguardian.mapping.dto.MessageDTO;
+import co.edu.uniquindio.cityguardian.mapping.dto.ReportDTO;
 import co.edu.uniquindio.cityguardian.mapping.dto.UserDto;
 import co.edu.uniquindio.cityguardian.mapping.mappers.UserMapper;
-import co.edu.uniquindio.cityguardian.model.Report;
 import co.edu.uniquindio.cityguardian.model.User;
 import co.edu.uniquindio.cityguardian.model.dto.AuthResponseDTO;
 import co.edu.uniquindio.cityguardian.model.dto.LoginRequest;
 import co.edu.uniquindio.cityguardian.repository.UserRepository;
 import co.edu.uniquindio.cityguardian.security.JWTUtils;
 import co.edu.uniquindio.cityguardian.services.EmailService;
+import co.edu.uniquindio.cityguardian.services.ReportService;
 import co.edu.uniquindio.cityguardian.services.UserService;
+import co.edu.uniquindio.cityguardian.utils.TokenUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -27,6 +29,7 @@ import org.springframework.stereotype.Service;
 import javax.naming.AuthenticationException;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -45,6 +48,8 @@ public class UserServiceImpl implements UserService {
     private JWTUtils jwtUtils;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private ReportService reportService;
 
     @Override
     public AuthResponseDTO login(LoginRequest loginRequest) throws Exception {
@@ -70,6 +75,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserDto getUserByEmail(String email) throws Exception {
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("El email no puede estar vacío");
+        }
+
+        User user = repository.findByEmail(email)
+                .orElseThrow(() -> new AuthenticationException("Usuario no encontrado"));
+
+        return userMapper.toUserDto(user);
+    }
+
+    @Override
     public void createNewUser(CreateUserDto userDto) throws Exception {
 
         if (emailExist(userDto.email())) {
@@ -86,8 +103,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto updateUser(EditUserDto updatedUser) throws Exception {
-        Optional<User> optionalUser = repository.findByEmail(updatedUser.email());
+    public UserDto updateUser(EditUserRequest updatedUser) throws Exception {
+        String email = TokenUtils.getEmailFromToken();
+        if (email == null) {
+            throw new AuthenticationException("Usuario sin email registrado");
+        }
+
+        Optional<User> optionalUser = repository.findByEmail(email);
         if (optionalUser.isEmpty()) {
             throw new RuntimeException("Usuario no encontrado");
         }
@@ -100,12 +122,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(String id) throws Exception {
-        Optional<User> reportOptional = repository.findById(id);
-        if (reportOptional.isEmpty()) {
-            throw new RuntimeException("Usuario no encontrado");
+    public void deleteUser(String email) throws Exception {
+        User user = repository.findByEmail(email)
+                .orElseThrow(() -> new AuthenticationException("Usuario no encontrado"));
+
+        if (user.getReportIds() != null && !user.getReportIds().isEmpty()) {
+            user.getReportIds().stream()
+                .forEach(reportId -> {
+                    try {
+                        reportService.deleteReport(reportId);
+                    } catch (Exception e) {
+                        throw new RuntimeException("Error al eliminar el reporte");
+                    }
+                });
         }
-        repository.deleteById(id);
+
+        repository.deleteByEmail(email);
     }
 
     @Override
@@ -189,6 +221,55 @@ public class UserServiceImpl implements UserService {
             repository.save(user);
 
             return ResponseEntity.ok(new MessageDTO<>(false, "Código verificado exitosamente"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageDTO<>(true, e.getMessage()));
+        }
+    }
+
+    @Override
+    public UserReportsDTO getUserReports(String email) throws Exception {
+        User user = repository.findByEmail(email)
+                .orElseThrow(() -> new AuthenticationException("Usuario no encontrado"));
+
+        List<ReportDTO> reports = new ArrayList<>();
+
+        if (user.getReportIds() != null && !user.getReportIds().isEmpty()) {
+            reports = user.getReportIds().stream()
+                    .map(reportId -> {
+                        try {
+                            return reportService.getReportById(reportId);
+                        } catch (Exception e) {
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+        }
+
+        return new UserReportsDTO(
+                user.getId(),
+                user.getName(),
+                reports);
+    }
+
+    @Override
+    public ResponseEntity<MessageDTO<String>> changePassword(String email, String newPassword) throws Exception {
+        try {
+
+            User user = repository.findByEmail(email)
+                    .orElseThrow(() -> new AuthenticationException("Usuario no encontrado"));
+
+            if (newPassword == null || newPassword.trim().isEmpty()) {
+                throw new IllegalArgumentException("La nueva contraseña no puede estar vacía");
+            }
+
+            String encodedPassword = passwordEncoder.encode(newPassword);
+
+            user.setPassword(encodedPassword);
+            repository.save(user);
+
+            return ResponseEntity.ok(new MessageDTO<>(false, "Contraseña actualizada exitosamente"));
         } catch (Exception e) {
             return ResponseEntity.badRequest()
                     .body(new MessageDTO<>(true, e.getMessage()));
