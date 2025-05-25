@@ -192,19 +192,19 @@ public class ReportServiceImpl implements ReportService {
     }
 
     public void addComment(CommentDto commentDto, String id) throws Exception {
-        Optional<Report> optionalReport = repository.findById(id);
-        if (optionalReport.isEmpty()) {
-            throw new RepeatedElementException("No se puede agregar el comentario, por que no existe el reporte");
-        }
-        Report report = optionalReport.get();
-        System.out.println("Comment: " + commentDto.description());
-        if (report.getComments() == null) {
-            List<String> comments = Collections.singletonList(commentDto.description());
-            report.setComments(comments);
-        } else {
-            report.getComments().add(commentDto.description());
+        if (commentDto == null || commentDto.description() == null || commentDto.description().trim().isEmpty()) {
+            throw new IllegalArgumentException("El comentario no puede estar vacío");
         }
 
+        Report report = repository.findById(id)
+                .orElseThrow(() -> new RepeatedElementException("No se puede agregar el comentario, porque no existe el reporte"));
+
+        if (report.getComments() == null) {
+            report.setComments(new ArrayList<>());
+        }
+
+        String commentText = commentDto.description().trim();
+        report.getComments().add(commentText);
         repository.save(report);
     }
 
