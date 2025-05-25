@@ -264,8 +264,8 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public List<ReportDTO> findReportsNearLocation(LocationDTO location, double radiusInKm) throws Exception {
         try {
-            double targetLat = Double.parseDouble(location.latitude());
-            double targetLon = Double.parseDouble(location.longitude());
+            double targetLat = location.latitude();
+            double targetLon = location.longitude();
 
             List<Report> allReports = repository.findAll();
 
@@ -276,8 +276,8 @@ public class ReportServiceImpl implements ReportService {
                         if (report.getLocation() == null) {
                             return  false;
                         }
-                        double reportLat = Double.parseDouble(report.getLocation().getLatitude());
-                        double reportLon = Double.parseDouble(report.getLocation().getLongitude());
+                        double reportLat = report.getLocation().getLatitude();
+                        double reportLon = report.getLocation().getLongitude();
                         
                         double distance = LocationUtils.calculateDistance(
                             targetLat, targetLon, reportLat, reportLon);

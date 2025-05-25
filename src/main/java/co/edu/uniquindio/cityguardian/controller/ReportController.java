@@ -191,15 +191,11 @@ public class ReportController {
         }
     }
 
-    @PostMapping("/nearby")
-    public ResponseEntity<MessageDTO<List<ReportDTO>>> findNearbyReports(
-            @Valid @RequestBody LocationDTO location) {
-        try {
-            List<ReportDTO> nearbyReports = reportService.findReportsNearLocation(location, 5.0);
-            return ResponseEntity.ok(new MessageDTO<>(false, nearbyReports));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                    .body(new MessageDTO<>(true, List.of()));
-        }
+    @GetMapping("/nearby")
+    public List<ReportDTO> findNearbyReports(
+            @RequestParam double latitud,
+            @RequestParam double longitud) throws Exception {
+        LocationDTO location = new LocationDTO(latitud, longitud);
+        return reportService.findReportsNearLocation(location, 5.0);
     }
 }
